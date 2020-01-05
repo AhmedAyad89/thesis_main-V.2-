@@ -1,0 +1,219 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}{}
+
+In this section we will present our experimental results. We use two real world datasets, the first for side-slip angle estimation and the second for modelling UAV flight behavior.
+We partition our datasets into in and out-of-distribution splits in order to evaluate the behavior of our models in the OOD case. In general we also refer to the in-distribution data as the test data.  
+In the next section we will explain our datasets, metrics, and baselines. 
+
+\section{Setup}
+
+We start this section by a quick recap of our model of uncertainties and some quick notation, then we will talk about our dataset and evaluation metrics in the following subsections, before we move on to the results.
+
+Recall that we model two types of uncertainty. The aleatoric uncertainty, which is captured by the model output $\sigma_y$. Recall that for an input $x$, our model gives the predictive distribution $\pdf{y|x, \theta} = \mathcal{N}(\mu_y, \sigma_y)$. 
+$\sigma_y$ is the std of a Gaussian which represents the model's belief about the true outcome $y$. The wider the Gaussian, the more uncertain the model is about $y$. We will use the shorthand $\mathcal{A}(x) = \sigma_y$, to directly talk about the model's aleatoric uncertainty for an input, and $\mathcal{A}$ will be taken to mean the aleatoric uncertainty as represented by the std of a Gaussian
+
+For the epistemic uncertainty, we will follow the same notation with $\mathcal{E}(x)$ is the model's epistemic uncertainty for point $x$. Recall that the epistemic uncertainty is the negative log probability our density model assigns to $x$. 
+
+We will refer to our compression RNN as C-RNN. 
+% C-RNN(A) refers to a network trained with KL annealing, C-RNN(W) for networks trained with the compression loss weighting (cf. \cref{sec:model}), and C-RNN(A+W) to our full model. We will refer to our baseline model based on MC dropout~\cite{gal2016dropout} as the MC-dropout model. 
+
+\subsection{Datasets}
+\subsubsection{Revs}
+We use the Revs vehicle dynamics~\citep{doi:10.1080/00423114.2016.1249893} dataset to evaluate our model on the side-slip angle estimation problem. The dataset consists of twenty-two race driving sequences. The dataset was collected to provide "Insights into vehicle trajectories at the handling limits", which makes it a suitably challenging for side-slip angle estimation. 
+
+The cars were equipped with sensors taking in IMU readings, driver controls such as steering wheel angle and brake pressure, vehicle readings such as engine speed and accurate position and velocity readings. The data is collected using two cars, a 1965 Ferrari 250 LM Berlinetta GT and a 1963 Corvette Grand Sport. 
+
+The IMU readings, driver controls and vehicle readings are the inputs to our model.
+Our model does not output the side-slip angle directly rather the longitudinal and lateral velocities. The side slip angle can computed from the components as explained in \cref{sec:vehicle_dynamics}.
+
+We partition the dataset into in and out-of-distribution by car make; data from the Corvette is in-distribution and the Ferrari is OOD. We end up with nine runs for training, three for test, and eight for OOD. 
+
+\subsubsection{Blackbird}
+
+The Blackbird dataset is "a large-scale, aggressive indoor flight dataset collected using a custom-built quadrotor platform"~\citep{antonini2018blackbird}. The datasets consists of 163 unique flight sequences. Each sequencing tracing one of seventeen predefined trajectories. Sequences vary in speed, yaw and trajectory complexity. 
+
+We use IMU measurments as inputs to our model, and again predict longitudinal and lateral velocities of the UAV. 
+
+For the blackbird dataset we use two different in/out of distribution splits. First we split the data by yaw. Trajectories are either run with constant yaw, or with a forward variable yaw. Thus for the first split, we take constant yaw sequences as in distribution, and forward yaw as OOD. In this case, the OOD data is quite different.
+
+We another split where the in/out of distribution data are not so different. We partition the sequences by trajectory, where some trajectories are in distribution and the rest OOD, the exact split is presented in appendix[REF]. 
+
+\subsection{Evaluation}
+
+To evaluate the accuracy of our models we use the standard mean absolute error(MAE). Recall from \cref{sec:model} that our model does not just output a point prediction, rather the mean and variance of a Gaussian representing a predictive distribution. The uncertainty of this distribution represents the aleatoric uncertainty (cf.\ \ref{subsec:aleatoric}). 
+To evaluate the quality of the model's predictive distribution which takes into account aleatoric uncertainty we use the negative log likelihood(NLL). 
+
+
+Evaluating the quality of the epistemic uncertainty is more involved. Works~\citep{liang2017enhancing, hein2019relu, lee2017training} focusing on OOD detection, typically evaluate the performance based on the ability of the model to discriminate between in/out of distribution inputs. From~\cite{liang2017enhancing} we use 
+
+\begin{enumerate}
+    \item FPR@95\%$\downarrow$ is the False Positive Rate(FPR) when the True Positive Rate(TPR) is at 95\%. Basically this is the probability that a negative sample will be mis-classified as positive when the threshold is set to have 95\% TPR.   
+
+    \item AUROC$\uparrow$ is the Area Under the Receiver Operating Characteristic Curve. The ROC curve represents the relationship between the True Positive Rate(TPR) and the False Positive Rate(FPR). The AUROC has a probabilistic interpretation as the probability that a positive(in-distribution) sample is given a lower uncertainty than a randomly chosen negative example. A perfect classifier has AUROC 1 and a random classifier has an expected 0.5 AUROC. 
+\end{enumerate}{}
+The Arrows ($\uparrow \downarrow$) denote whether higher/lower is better. To compute those metrics we use the uncertainty estimates, typically the epistemic, as the score of a binary classifier indicating which class an input belongs to. 
+
+One issue with this type of metric is that there is a strong assumption that the model should consistently give higher uncertainty to OOD samples. However in some contexts, there will be OOD inputs where the model performs well, and in-distributions samples where the model performs poorly. Expecting lower uncertainty for the latter seems both unreasonable, and less useful. And in general, the in/out of distribution partitioning is application dependent, and somewhat arbitrary, there is no reason to make the general assumption that our model cannot make predictions over any OOD input. In the end, the hope is that we train models which can to some extent generalize to some novel inputs. 
+
+Thus what we are really after is an uncertainty estimate which correlates well with the model's errors, rather than with the  arbitrary in/out partitions we use in our experiments. Note that if a specific partitioning is needed for a particular application, such metrics are appropriate. But if we are after a more general measure of uncertainty, then what we are after is an uncertainty which correlates well with the model's errors.  
+We use two standard correlation measures to evaluate our results.
+
+\begin{enumerate}
+    \item  Pearson correlation$\uparrow$ which measures the linear correlation and is defined as
+    \begin{equation}
+        \rho_{xy} =  \frac{Cov(x,y)}{\sigma_x \sigma_y}
+    \end{equation}{}
+    
+    \item Spearman rank correlation$\uparrow$ we do not expect the epistemic uncertainty estimates we provide to be linearly correlated with the errors, but at least we should see a monotonic relationship. The Spearman rank is the Pearson correlation over the rank variables.
+    \begin{equation}
+        r_{xy} = \rho_{g_x g_z}
+    \end{equation}{}
+    where $g_x$ is the rank variable of $x$, meaning $g_{x_i}$ is an integer denoting the rank of $x_i$ in $X$. Thus this helps us measure how consistently inputs with larger errors are given larger uncertainty. 
+\end{enumerate}{}
+
+We can measure the correlation between the absolute errors(AE) and the epistemic uncertainty. However, some errors could be \emph{explained away} by aleatoric uncertainty. Thus we take the position that epistemic uncertainty should go up when the model error is high \textbf{relative} to the model's estimate of aleatoric uncertainty. 
+We find that the absolute value of the Z-score~\citep{clark2014z}, defined as the number of standard deviations away from the mean to be a suitable score of the errors which takes into account the aleatoric uncertainty. We use it as 
+$$ Zs(x) = \frac{|\mu_y - y|}{\sigma_y}$$
+where $\mu_y$ is the model's prediction for $y$, and $\sigma_y$ is the model's output for the std and captures the aleatoric uncertainty. Note here that it is not the magnitude of the error which matters, but its ratio to the aleatoric uncertainty. This allows some errors to be \emph{explained away} by the aleatoric uncertainty, while others could be compounded by overly low aleatoric uncertainty. To give some intuition, if the aleatoric uncertainty is perfectly correlated with the absolute error, the Z-score remains constant. If the aleatoric uncertainty is constant, the Z-score becomes a scaled version of the absolute error. 
+
+
+\subsubsection{Metric implementation}
+
+A challenge we face when computing the metrics mentioned in this section is that our models have two sets of outputs, for the longitudinal and lateral velocities. However, C-RNN estimates one number for the epistemic uncertainty.
+
+To compute the discrimination metrics(AUROC, FPR@95\%) we need a single estimate of uncertainty. For C-RNN this is what we have already with the epistemic uncertainty. For MC-dropout we get two epistemic uncertainties(one for each prediction). In such a cases, we normalize each output, then average them to get a unified uncertainty, we use that quantity to compute the metrics.
+
+To measure correlation between errors and uncertainties when we have a single uncertainty estimate, we normalize the errors for each output then average them. We then measure correlation between this average and the uncertainty. When we have two uncertainty estimates, we correlate each output directly with its error, then we average the correlations~\citep{alexander1990note}.
+
+For metrics such as NLL and MAE, we will generally be showing the average over both outputs(longitudinal, lateral), however, when it is needed we will also display detailed results for each output. In such cases, detailed results will be shown in brackets in the format \textbf{avg.(long., lat.)}. 
+% Finally, we have argued that aleatoric uncertainty 
+
+\subsection{MC dropout}
+
+We use MC dropout~\citep{gal2016dropout} as a baseline model for evaluating epistemic uncertainty. MC dropout estimates the variance of the posterior predictive distribution\cref{eq:bayesian_predictive} due to epistemic uncertainty. Our dropout networks share the same basic structure as our compression models, but with the reconstruction and prior modules removed, since we do not need to model the data density in this case. Like our compression RNNs, the dropout model is also designed to estimate aleatoric uncertainty by outputting the mean and std of a Gaussian in the target space.
+
+We use the variational dropout suggested by~\cite{gal2016theoretically}. We add dropout layers after each layer in the network, but not inside the recurrence module. To evaluate the epistemic uncertainty, and following~\cite{gal2016dropout} we pass an input N times through the network with different dropout masks, and compute the variance of the outputs. We have already argued in \cref{ch:background} that the standard Bayesian approach to learning does not fully capture the epistemic uncertainty stemming from OOD inputs. The full Bayesian approach is intractable for neural networks, and MC dropout is a commonly used approximation. Here we show empirically that MC dropout does not fully capture the OOD uncertainty. 
+
+\clearpage
+\section{Revs results}
+\label{sec:revs_results}
+
+We will start with an in-depth analysis of C-RNN and MC dropout to understand what uncertainties each model captures and its behavior on in and out-of-distribution inputs. This will be followed by a summary of the findings and comparison of the models over key results . Finally we will end with an ablation study of our model to show the effect of our additional training components. 
+
+\input{Experiments/revs_results.tex}
+
+\clearpage
+\section{Blackbird(1) results}
+\input{Experiments/blackbird_splitone_results.tex}
+
+\clearpage
+\section{Blackbird(2) results}
+\input{Experiments/blackbird_splittwo_results.tex}
+
+\clearpage
+\section{Summary of findings}
+
+The results of the last three sections have shown some patterns. In this section, we will look at all our experiments together, present a compact version of the key results and distill the findings that come out.
+
+Our focus will be on two key issues. First the comparison between C-RNN and MC dropout, particularly in terms of quality and behavior of epistemic uncertainty. Second we will discuss the relationship between epistemic and aleatoric uncertainty for our C-RNN model. 
+
+Before we get to our substantive issues, we start with two general observation about the aleatoric uncertainty. First, in all of our experiments the aleatoric uncertainty performs close to random in terms of separating the in/out-of-distribution inputs. The highest AUROC we have seen using the aleatoric uncertainty is 0.57, which is only slightly better than expected random behavior. This holds for both C-RNN and MC dropout. 
+
+% This brings us to our second point regarding the aleatoric uncertainty, which is that both models we used in our experiments estimate it in the same. Granted the different training induced by dropout may lead to models with different behavior when predicting the aleatoric uncertainty. However, we have just mentioned that for both models, it fails to separate the test and OOD splits. Moreover, \cref{tbl} shows the Pearson correlation between the aleatoric uncertainty and the MAE for both models mover all datasets side by side. 
+
+
+\subsubsection{C-RNN vs. MC dropout}
+
+We start this comparison by collecting the MAE and NLL for both models over all datasets in \cref{tbl:comparison}. In general the performance is similar with each model providing better numbers in some settings. We can see that MC dropout get better NLL for the OOD splits on Revs and Blackbird(2), despite not having lower MAE. On the other hand, we can see that C-RNN gets better performance on the Revs test split, with an MAE of 0.55 to MC dropout's 1.26. Beyond that basic performance seems to be similar. 
+
+% \begin{table*}[htbp]
+% \centering
+%     \begin{tabular}{l l c c c c c c}  
+%         \toprule
+%         Model & split & \multicolumn{3}{c}{MAE} & \multicolumn{3}{c}{NLL}\\
+%         - & - & Revs & Blackbird(1) & Blackbird(2) & Revs & Blackbird(1) & Blackbird(2) \\
+%         \midrule
+%         \multirow{3}{*}{C-RNN} 
+%             & Test     & 0.55 & 0.3 & 0.27  & 0.44   & 0.3  & 0.22 \\  
+%             & OOD      & 2.6 & 0.27 & 1.12  & 17.8   & 0.13 & 11.2\\  
+%             & Test+OOD & 1.6 & 0.28 & 0.7   & 9.2    & 0.21 & 5.7\\ 
+
+%         \midrule
+%         \multirow{3}{*}{MC dropout} 
+%             & Test     & 1.26 & 0.26 & 0.27  & 1.14 & 0.2   & 0.22 \\  
+%             & OOD      & 2.55 & 0.28 & 1.1  & 1.62  & 0.23  & 7.3 \\  
+%             & Test+OOD & 1.8  & 0.27 & 0.69  & 1.38 & 0.21  & 3.7\\ 
+        
+%         \toprule
+%     \end{tabular}
+%     \caption{Performance metrics.}
+%     \label{tbl:comparison}
+% \end{table*}
+
+\begin{table*}[htbp]
+\centering
+    \begin{tabular}{l l c c c c c c}  
+        \toprule
+        Model & split & \multicolumn{2}{c}{Revs} & \multicolumn{2}{c}{Blackbird(1)} & \multicolumn{2}{c}{Blackbird(2)}\\
+        - & - & MAE & NLL & MAE & NLL & MAE & NLL \\
+        \midrule
+        \multirow{3}{*}{C-RNN} 
+            & Test     & 0.55 & 0.44 & 0.3  & 0.3   & 0.27 & 0.22 \\  
+            & OOD      & 2.6  & 17.8 & 0.27 & 0.13  & 1.12 & 11.2\\  
+            & Test+OOD & 1.6  & 9.2  & 0.28 & 0.21  & 0.7  & 5.7\\ 
+
+        \midrule
+        \multirow{3}{*}{MC dropout} 
+            & Test     & 1.26 & 1.14 & 0.26  & 0.2   & 0.27 & 0.22 \\  
+            & OOD      & 2.55 & 1.62 & 0.28  & 0.23  & 1.1  &  7.3 \\  
+            & Test+OOD & 1.8  & 0.26 & 0.27  & 0.21  & 0.69 & 3.7\\ 
+        
+        \toprule
+    \end{tabular}
+    \caption{Predictive performance comparison.}
+    \label{tbl:comparison}
+\end{table*}
+
+
+
+The main difference between C-RNN and MC dropout is the estimation of the epistemic uncertainty. We have argued in \cref{ch:background} that the standard Bayesian framework that MC dropout approximates is unreliable for estimating uncertainty when OOD data can be present at inference time. The results of our experiments have supported this claim. In \cref{tbl:epistemic_comparison} we compare the performance of the epistemic uncertainty for MC dropout and C-RNN in terms of correlation with the errors and discrimination between in/out-of-distribution inputs. 
+
+\begin{table*}[htbp]
+\centering
+\begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{l l c c c c c c}  
+        \toprule
+        Model & split & \multicolumn{2}{c}{Revs} & \multicolumn{2}{c}{Blackbird(1)} & \multicolumn{2}{c}{Blackbird(2)}\\
+        - & - & $\rho$(MAE vs $\mathcal{E}$) & AUROC &
+        $\rho$(MAE vs $\mathcal{E}$) & AUROC & $\rho$(MAE vs $\mathcal{E}$)  & AUROC \\
+        \midrule
+        \multirow{3}{*}{C-RNN} 
+            & Test     & 0.32 & -    & 0.88 & -    & 0.92 & -   \\  
+            & OOD      & 0.57 & -    & 0.9  & -    & 0.87 & -   \\  
+            & Test+OOD & 0.85 & 0.97 & 0.88 & 0.46 & 0.9  & 0.8 \\ 
+
+        \midrule
+        \multirow{3}{*}{MC dropout} 
+            & Test     & 0.36 & -    & 0.76  & -    & 0.84 & -  \\  
+            & OOD      & 0.32 & -    & 0.77  & -    & 0.91  &  -  \\  
+            & Test+OOD & 0.41 & 0.64 & 0.76  & 0.46 & 0.69 & 0.48 \\ 
+        
+        \toprule
+    \end{tabular}
+\end{adjustbox}
+    \caption[Epistemic uncertainty comparison]{Epistemic uncertainty comparison. We show the Pearson correlation with the MAE, and the AUROC.  }
+    \label{tbl:epistemic_comparison}
+\end{table*}
+
+Recall that the AUROC measure here represents the probability that a randomly chosen in-distribution input is assigned lower epistemic uncertainty than a random OOD input. We can see that C-RNN significantly out-preforms MC dropout on both the Revs and Blackbird(2) experiments. When the errors on the OOD data is significantly higher than on test data, this is a desirable property, and this is in fact the case for Revs and Blackbird(2). However we have seen on Blackbird(1) that we can have OOD inputs where the model can generalize well, and ideally we do not want high uncertainty for such inputs. We can see from \cref{tbl:epistemic_comparison} that C-RNN does not give higher uncertainty to OOD data in Blackbird(1), with an AUROC of 0.46. 
+
+In terms of correlation between the errors and the uncertainties, we can see that C-RNN consistently outperforms MC dropout when looking at the combined split. Of course, the combined split represents the type of real world use cases we are interested in. However, the somewhat more impressive finding, is that over the test split alone C-RNN still consistently out-preforms MC dropout, albeit by a smaller margin.  
+
+To conclude, we have shown over three different sets of experiments that C-RNN can give reliable uncertainty estimates in settings where data comes from a mixture on in and out-of-distribution, which is our target use case. Moreover, even in the absence of OOD samples, or when the model can generalize well to OOD samples, C-RNN's epistemic uncertainty remains a valid signal for uncertainty, and performs as well or better than MC dropout's epistemic uncertainty. 
+
+
+
+
+
+\end{document}  
+

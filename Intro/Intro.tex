@@ -1,0 +1,31 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+In 2004, the American Defense Advanced Research Projects Agency(DARPA) held a challenge for autonomous cars on 150-mile obstacle course through the Mojave desert. No one collected the million dollar prize attached to competition, as the top contender managed 7 miles[CITE]. In 2018, Waymo released its safety report announcing its cars have self-driven for over five million autonomous miles in more than twenty five cities[CITE].  
+
+This leap in machine performance for complex tasks has been a theme of the last two decades, largely powered by machine learning(ML). Computer vision models have achieved human performance in image classification.  
+Deepmind's Alpha go beat the dominating world champion in go, a game long seen as out of reach for computers. A ML model beat radiologists in screening for lung cancer\citep{ardila2019end}. 
+Just to cite a few examples.  
+
+Such successes have demonstrated the potential of deploying ML to automate complex tasks. Still the road to large scale deployment seems blocked for certain domains. Autonomous driving and medical diagnostics are two of the foremost examples where ML could offer great benefits, but safety concerns limit their usability. With one of the leading issues being how can we trust these black-box systems in settings where mistakes can be fatal. And undoubtedly mistakes do happen. For instance there has been at least six confirmed fatalities involving autonomous cars[CITE]. 
+
+One of the key limitations of current ML systems is their inability to give sound estimates of their uncertainty. 
+We want our models to signal when they are not confident about their predictions. If such signal is available, it makes deployment feasible. For instance an automated medical diagnosis system can refer uncertain cases to a doctor, and otherwise give a diagnosis. 
+
+Focusing on Deep Learning(DL)\citep{goodfellow2016deep}, the current tools available for uncertainty estimation are not yet mature enough for real world deployment in safety critical systems. A fundamental problem comes from "data which differ significantly from the data used to train the model"\citep{bishop1994novelty}. Such inputs are referred to as out-of-distribution(OOD) inputs. An example of OOD inputs is driving on an icy road, for an agent trained to drive on dry roads. 
+ML models struggle to give good predictions on OOD inputs, and to exacerbate the problem they can make those mistaken predictions with a high degree of confidence.   
+
+In this thesis, we are interested in using DL models for non-linear time series predictions. Our focus is on modelling vehicle dynamics, particularly side-slip angle estimation~\citep{graber2018hybrid}, and modelling the flight behavior of unmanned aerial vehicles(UAV)~\citep{antonini2018blackbird}.
+
+Recurrent Neural Networks(RNNs) are universal function approximators adapted for temporal data. As such, they can potentially give higher accuracy for problems such as side-slip angle estimation than the dominating approaches like Kalman filters\citep{graber2018hybrid}. 
+The problem we consider in this thesis, is obtaining reliable uncertainty estimates from RNNs.
+
+\section{Contributions}
+
+\begin{itemize}
+    \item 
+\end{itemize}{}
+
+\end{document}
+

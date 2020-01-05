@@ -1,0 +1,46 @@
+\ProvidesPackage{ayad}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
+
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{soul,xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{afterpage}
+
+\usepackage{subfiles}
+
+\AtEndDocument{%
+    \listoffigures
+    \listoftables
+    \newpage
+    \bibliography{main}
+    \bibliographystyle{agsm} 
+    % \printacronyms[include-classes=abbrev,name=Acronyms]
+}
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+
+\newcommand{\chmp}[1]{{\color{red}{CP\@: #1}}}
+\newcommand{\ahmed}[1]{{\color{purple}{(ahmed\@: #1)}}}
+\newcommand{\refeq}[1]{(\textbf{eq.\ref{#1}})}
+
+\renewcommand{\bf}{\textbf}
+
+
+%%%%% Math notation %%%%%
+
+\newcommand{\dist}[1]{\ensuremath{#1}}
+
+\newcommand{\pdf}[2][]{\ensuremath{\mathbb{P}_{\dist{#1}}(#2)}}

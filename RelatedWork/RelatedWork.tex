@@ -1,0 +1,98 @@
+\documentclass[../main.tex]{subfiles}
+
+
+\begin{document}
+
+% In this section we will explore the methods used in to estimate uncertainty and deal with OOD inputs in deep learning. 
+
+
+In this section, we will explore the general ideas used to estimate epistemic uncertainty. In general, we have two families of approaches. Ensembling approaches; and the similarity based approaches. The Bayesian approach discussed in  \ref{sub:bayesian_framework} is one type of ensembling. Those methods typically assume IID data and focus on estimating the general epistemic uncertainty. 
+Similarity based methods are the complement, they operate to detect OOD inputs, which violate the IID assumption.  
+
+\section{Parameter uncertainty}
+
+Ensembling is the idea of using multiple models to perform learning and prediction. 
+% The general idea is that the variance in the predictions of the different models in the ensemble, reflect the uncertainty. 
+For a simple ensemble, let $f_i(x)$ be the prediction of the ith member on $x$, the final prediction is  $$f(x) = \frac{1}{n} \sum_{i=0}^n f_i(x)$$ The uncertainty of the ensembles is expressed in the \emph{disagreement} between the individual members. For regression problems it is the variance of the predictions around the mean $f(x)$. 
+$$Var(f_0(x) \cdots f_n(x))$$
+We have also discussed the Bayesian approach which is richer than simple ensembles; it accounts for priors, allows for complex predictive distributions, and infinite continuous ensembles. However, we can look at $${f_0(x) \cdots f_n(x)}$$ as samples representing the predictive distribution (\textbf{eq.\ref{eq:bayesian_predictive}}).
+There are also more complex versions of ensembling. However, a detailed exploration of ensembling is not in our scope. 
+
+The Bayesian approach is principled and works well, when its assumptions are not violated. OOD data violates the i.i.d assumption. \citet{ovadia2019can} test multiple ensembling techniques over deep networks, to assess the quality of uncertainty estimates under dataset shift. The general conclusion is that uncertainty estimates' quality degrades under dataset shift. \citet{Mundt2019open} investigated a number of approaches including a variational approximation to Bayesian neural networks, and concluded that while ensembling/Bayesian approaches help, the use of generative modelling may be necessary to obtain reliable uncertainty estimates.
+
+A challenge with ensembling approaches is diversity of the predictions of individual members outside the data distribution. \citet{jain2019maximizing} explicitly maximize the OOD diversity of their ensembles by forcing diverse predictions on randomly sampled inputs(i.e. noise). 
+
+
+\section{Input uncertainty}
+
+\subsection{Similarity based}
+
+There is a broad range of OOD detection approaches roughly based on similarity with known in-distribution data. \citep{hautamaki2004outlier, NIPS2009_3723, zhang2009new} use a nearest neighbor graph to determine an outlier score for points. 
+\cite{scholkopf2000support} use a one-class support vector classifier to separate the nominal data from everything else. \citet{tax2004support} extend this idea to fit a spherical boundary around the data rather than a hyperplane. \cite{erfani2016high, ruff2018deep} extend the one-class approach by adding deep networks as features extractors for the support-vector classifier.  
+
+\subsection{Density based models}
+Closely related to one-class classification, is estimating the support of a the data distribution. In fact, \citet{platt1999estimating} formulate the problem of estimating the support as finding a function which is positive in high density areas and negative everywhere else. 
+% The authors see this approach as advantageous because it is \emph{easier} than density estimation. As such, when it is sufficient, it should be preferred.
+
+\citep{breunig2000lof, zhang2009new} use local density estimation to compute outlier scores. \citep{qin2016kelos, he2004novelty, bishop1994novelty} use variants of kernel density estimation to produce outlier scores. All those approaches are based on local non-paramteric density estimation schemes. 
+
+\citet{lee2018simple} learn a distribution over the latent activations of trained deep models on normal inputs, then reject inputs that produce low probability activations. 
+
+\subsection{Generative modelling}
+
+For complex high-dimensional distributions, modern approaches typically rely on deep learning machinery, particularly density estimation with deep networks. Deep learning approaches to density estimation rely on generative modelling. The two most common approaches are Autoencoding and Generative Adversarial Training. Autoencoding means training a model to somehow compress the data, then reconstruct it while minimizing the NLL of the reconstruction and the length of the compressed data.
+Generative adversarial training seeks to train a data generator that mimics the data distribution. Variants of both approaches have been used in the context of anomaly/OOD detection. Moreover, ideas from GANs have been ported to autoencoders(AEs), producing models like the Adversarial Autoencoders(AAes)\citep{makhzani2015adversarial}, and VAE/GAN\cite{larsen2015autoencoding}, which allow for flexible priors in the latent and output space respectively. Presumably allowing for better compression of the data. .
+
+% Normalizing flows \cite{rezende2015variational} are another recent deep distribution modeling technique, which uses invertible models.
+% As generative models capture the data distribution, they can be used to flag low probability inputs. Autoencoders are readily usable for OOD detection, because their reconstruction error can be directly used as a proxy for the probability of an input. Intuitively, a model trained to reconstruct inputs from a certain distribution, should have a higher reconstruction error for inputs far away from that distribution. 
+
+\citet{xu2018unsupervised, an2015variational, borghesi2019anomaly} all use the reconstruction errors of autoencoders to detect anomalous/OOD inputs. 
+% \citet{zhou2017anomaly} perform PCA over the data, splitting it into a low-dimensional 'signal' component and the rest is considered noise. The Autoencoder is then trained to 
+\citet{chen2017outlier} use dropout to leverage an ensemble of autoencoders for anomaly detection.
+\citet{baur2018deep} use the reconstruction error of a VAE/GAN\citep{larsen2015autoencoding}, to detect anomalies in brain MR images.
+
+One issue with the aforementioned works using the reconstruction error alone is that there is no taking into account how much compression was actually achieved for a particular input.
+With VAEs(and variants), it is possible to compute the cost of the latent code for each input, which represents its likelihood in latent space. 
+
+\citet{leveau2017adversarial} use the likelihood of an AAE to compute anomaly scores. The prior is chosen to a either a standard Gaussian, or a mixture of Gaussians. Additionally, they propose a scheme where the prior contains a component modelling anomalies. 
+
+\cite{vasilev2018q} propose using the full VAE objective as an anomaly score. \citet{zong2018deep} propose deriving a likelihood using both the latent representation and the reconstruction error of an AE. During training a Gaussian Mixture Model is fitted to maximize the likelihood of the reconstructing residuals concatenated with latent representations for the inputs. 
+\citet{pidhorskyi2018generative} use the likelihood of an AAE to produce anomaly scores. However, they break down points into two components, a projection onto the learned the data manifold, and a \emph{noise} component orthogonal to the manifold. The likelihood of a point is then the joint probability of the components. 
+
+Adversarial discriminators have also been employed for anomaly/OOD detection. In general, GANs can be viewed as a one-class classifier(the discriminator), along with a generator used to provide good negative samples during training. Making them also amenable for anomaly/OOD tasks.
+In \citep{sabokrou2018adversarially}, the authors use a denoising AE, coupled with a discriminator network. The idea is that the reconstruction loss is replaced by the discriminator. The reconstructed samples are fed into a discriminator, which then outputs an anomaly score. The whole model is trained as a GAN, and an additional reconstruction loss over the generator. In \citep{perera2019ocgan}, a denoising AE is used, and coupled with two discriminators, a latent space discriminator and an output space discriminator. The latent discriminator is used to enforce that the prior and posterior match in latent space. The output discriminator is a typical GAN discriminator, used to differentiate between generated and real samples.  
+
+\subsubsection{Time series}
+
+In the context of time series, prediction based approaches have been used for anomaly detection. \citep{hundman2018detecting, taylor2016anomaly, malhotra2015long, marchi2015non} all use the prediction error of a vanilla LSTM to detect anomalies. 
+In those approaches, the models are trained to predict a future window, then the error in the prediction is used as an anomaly score. 
+
+Those approaches do no regularize the latent state, or take it into account when computing anomaly scores. \citet{guo2018multidimensional} use a GRU based autoencoder, and regularize the latent representation using a Gaussian mixture prior. Still, only the reconstruction error is taken into account when computing anomaly scores.
+
+
+\subsection{Contrastive approaches}
+Those are approaches based on obtaining negative samples. The goal of the negative samples is to simulate OOD data, or delineate the training distribution by lying around the boundary between the training data and everything else. 
+If such data is available, the task of OOD detection is greatly simplified, and can be reduced to a normal two-class classification. Alternatively, the model can be trained to have a high uncertainty score on the negative samples. 
+
+There are three sources of negative samples used
+\begin{itemize}
+    \item An auxiliary data source
+    \item A generative model
+    \item A noise source
+\end{itemize}{}
+
+\textbf{Auxiliary data:} Here the model assumes the availability of some dataset which simulates OOD data. For example, \citet{hendrycks2018deep} apply their outlier exposure model to vision tasks, and the 80 million tiny images\citep{torralba200880} dataset as a stand in for OOD data.
+
+\textbf{A generative model:} \cite{vernekar} use a VAE to model the data distribution. The trained VAE is then used to generate OOD samples which are close to the data distribution. The authors simulate two types of OOD data, one by adding perturbations to the inputs, the second by sampling from low probability regions of the VAE's posterior.
+
+We already discussed GANs, which can be interpreted as a contrastive approach to one-class classification in the previous subsection. Here the discriminator is viewed as a classifier between in and out of distribution, the generator is used to generate good negative samples. Normally, the GAN generator is trained to mimic the training distribution, and if it becomes too good at that, the negative and positive samples start overlapping, and it becomes more challenging to learn a good discriminative boundaries. In the context of semi-supervised learning, \citep{dai2017good} introduced the idea of a bad GAN; a GAN where the generator is imperfect in the sense that its samples lie on the boundary of the data distribution, rather than in the high density areas. Subsequently, similar ideas have been used in OOD detection. \cite{lee2017training} train GAN generator to produce samples where the classifier is uncertain. The standard cross-entropy loss of the classifier makes it confident in high density areas. This in turn means the generator avoids such regions and goes to the tails of the data distribution. The classifier is then trained to be uncertain over the generated samples. 
+
+\textbf{Random noise sources:} Using noise can be much simpler than the generative approaches discussed above. There are various approaches in the literature which use noise to  simulate OOD data. 
+
+\cite{jain2019maximizing} use samples from a uniform distribution over the input space, in an attempt to cover all possible inputs. In their setting, an ensemble is trained to have high diversity on those noise samples, thus increasing uncertainty. \citet{Hafner2018NoiseCP} introduce noise contrastive priors(NCP) as a technique for constructing a prior which favors uncertain functions outside the data distribution. In their applications, they add gaussian noise to the training data in order to simulate OOD inputs, then encourage uncertainty over the perturbed inputs.
+
+The issue with those generic noise models is that we are unlikely to get the OOD samples we want; samples which cover the surface around high density regions well, but do not overlap with them. For high dimensional input spaces, a large number of samples is required to cover all the space. Adding Gaussian noise to inputs is problematic, since, on one hand, too little noise would make our noisy samples overlap too much with our training data, On the other hand, \cite{csiszarik2019negative} argue that with enough noise, the samples become too easy to distinguish from real data. Intuitively, this is saying that while the corrupted samples are not too far in terms of euclidean distance, they are \emph{semantically} too far from the data distribution to provide the required regularization. To mitigate those problems, \cite{hein2019relu} use adversarial noise added to the inputs. The noise is sculpted to maximize the confidence over the corrupted samples.
+
+
+
+\end{document}

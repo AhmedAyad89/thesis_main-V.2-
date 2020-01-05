@@ -1,0 +1,102 @@
+% \documentclass[11pt]{report}
+% \usepackage[left=1cm, right=1cm, top=2cm]{geometry}
+\documentclass[headsepline,footsepline,oneside,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc,BCOR=12mm,DIV=13]{scrbook} % one-sided
+
+\usepackage{ayad}
+\usepackage[utf8]{inputenc}
+
+\usepackage{settings}
+% TODO: change thesis information
+\newcommand*{\getUniversity}{Technische Universität München}
+\newcommand*{\getFaculty}{Department of Informatics}
+\newcommand*{\getTitle}{Uncertainty estimation in neural times series modelling}
+\newcommand*{\getTitleGer}{Titel der Abschlussarbeit}
+\newcommand*{\getAuthor}{Ahmed Ayyad}
+\newcommand*{\getDoctype}{Master's Thesis in Informatics}
+\newcommand*{\getSupervisor}{Professor Vasileios Belagiannis}
+\newcommand*{\getAdvisor}{Doctor Shadi Albarqouni}
+\newcommand*{\getSubmissionDate}{15th January 2020}
+\newcommand*{\getSubmissionLocation}{Munich}
+
+
+
+\begin{document}
+
+\pagenumbering{alph}
+\input{pages/cover}
+
+\frontmatter{}
+
+\input{pages/title}
+\input{pages/disclaimer}
+\input{pages/acknowledgements} 
+\input{pages/abstract}
+\microtypesetup{protrusion=false}
+\tableofcontents{}
+\microtypesetup{protrusion=true}
+
+% \section*{Notation}
+
+% \ahmed{For now this section is just to help me keep things consistent, plan is to clean or remove it in final version}
+
+% \begin{itemize}
+
+% \item Bold capital letters $\mathbf{A}$ represent matrices
+
+% \item Bold lower case letters $\mathbf{v}$ represent vectors
+
+% \item Lower case greek symbol ($\theta$) represent model parameters
+
+% \item The calligraphic $\mathcal{X}$ represents the input space
+
+% \item The calligraphic $\mathcal{Y}$ represents the target space
+
+% \item \pdf{.} is the probability density function
+
+% \item \pdf[t]{.} is the pdf under some distribution $t$ 
+
+% \item \pdf{.|\theta} is the pdf as modeled by parameters $\theta$ 
+
+% \item $\mathbb{E}_{q}[f(.)]$ represents an expectation of function $f$ under $q$
+
+% % \item Lower case letters $(x, y)$ represent random variables 
+
+% \item The upper case letters $X, Y$ represent matrices of the training and target samples
+
+% \item Predictive distribution denotes predictions that come in the form of probability distribution rather than a point prediction
+
+% \end{itemize}
+
+\mainmatter{}
+
+\chapter{Introduction}
+\subfile{Intro/Intro.tex}
+
+\chapter{Background}
+\label{ch:background}
+\subfile{Background/Backgound.tex}
+
+
+\chapter{Approach}
+\label{ch:approach}
+\subfile{Approach/Approach.tex}
+
+
+\chapter{Experiments}
+\label{ch:experiments}
+\subfile{Experiments/Experiments.tex}
+
+\chapter{Related work}
+\subfile{RelatedWork/RelatedWork.tex}
+
+
+\chapter{Conclusion}
+
+
+\newpage
+\appendix
+\chapter{Appendix}
+\input{Appendix/appendix.tex}
+
+
+\end{document}

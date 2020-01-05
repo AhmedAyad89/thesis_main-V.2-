@@ -1,0 +1,49 @@
+\label{sub:bayesian_framework}
+
+With the Bayesian framework we can frame the learning problem as in inference problem, and Bayes theorem~\citep[chapter~2]{mackay2003information} will give us a principled way to view and solve the problem.
+
+To recap, there is an unknown distribution \pdf{y|x} mapping from input measurements $x$ to the target measurements $y$, and we wish to learn this mapping from the dataset $\mathcal{D}$. We define our parameterized family of distributions \pdf{y|x, \theta}, and we define a likelihood function \pdf{\mathcal{D}|\theta}. Let $X$ be the matrix of input features, $Y$ the vector of targets, the likelihood function for a regression problem is \pdf{Y|X;\theta}~\citep{goodfellow2016deep}. The likelihood function tells us how well a parameter vector $\theta$ predicts the data. 
+
+The MLE approach as we described in the previous section seeks to find the parameters which maximize the likelihood~\cite[chapter~22]{mackay2003information}. This can be interpreted as finding the theory which explains the data best and assuming it is true. The Bayesian approach leaves room for uncertainty, by considering all possible theories. 
+
+% We wish to learn about or model a phenomenon. We start by having some prior distribution over a set of possible hypotheses, and some data collected about this phenomenon. \textbf{Learning} is using the data we have, to update our prior distribution into a posterior incorporating all the knowledge this data has to give about our phenomenon. 
+% Concretely,our phenomenon \chmp{this is our model, not the phenomenon} is a stochastic mapping which takes an input $x$ and gives an output $y$; we are modelling some conditional density \pdf{y|x}.
+
+% Our hypothesis space is parameterized by $\theta$, and our prior and posterior distributions are distributions over a set of parameters $\theta$, the parameters $\theta$ in turn define the conditional \pdf{y|\theta, x}.
+
+The Bayesian view of learning is built around Bayes rule~\citep[chapter~2]{mackay2003information}
+\begin{equation}
+    \label{eq:bayes_rule}
+    \pdf{\theta| \mathcal{D}} = \frac{\pdf{\mathcal{D}|\theta} \pdf{\theta}}{\pdf{\mathcal{D}}}
+\end{equation}
+
+\pdf{\theta| \mathcal{D}} is the posterior distribution over our parameters, and \pdf{\theta} is our prior~\citep{mackay2003information}. The prior is a distribution of the parameters which has to defined before the data is seen, and is a subjective assumption~\citep{mackay2003information}. Typically priors are diffuse and uninformative, and as data is added, the posterior becomes sharper and sharper~\cite[chapter~5]{goodfellow2016deep}. The posterior gives our belief over parameter space after we have seen the data. 
+
+To make predictions using our posterior distribution we apply the product and sum rules~\citep{mackay2003information} to get
+\begin{equation}
+    \label{eq:bayesian_predictive}
+    \pdf{y|x; \mathcal{D}}=  \int \pdf{\theta | \mathcal{D}}\, \pdf{y|\theta, x} \, d\theta
+\end{equation}{}
+
+We will refer to the distribution \pdf{y|x; \mathcal{D}}, as the \textbf{posterior predictive distribution}~\citep{barbieri2014posterior}, and it represent our prediction for some input $x$ after having seen the data. The prediction comes as a distribution rather than a point, because we are uncertain about $y$. In the next section we will breakdown the uncertainties we have in this setting, then dissect the uncertainty in the posterior predictive distribution. 
+
+% \chmp{
+%     Is this split standard? I assume you are working up to a critique of this approach. You should add a citation. Maybe  hint 
+%     at that this is common view, which has certain problems.
+% }
+
+% The entropy of the predictive distribution \pdf{y|x} is depends on three factors. The first is the entropy in the individual models' predictions \pdf{y|\theta, x}. This represents the aleatoric uncertainty.
+
+% The second two factors, the entropy in the posterior, and the variance or disagreement between the different models in the support of the posterior, compound to give us the epistemic uncertainty. If the posterior is highly concentrated on a single model, the epistemic uncertainty will be low. If the posterior is distributed over a large number of models, but they all make the same prediction, the epistemic uncertainty will also be low. Thus having high epistemic uncertainty for an input means have the posterior distributed over models which \emph{disagree} over the correct prediction for the input. \chmp{Maybe already foreshadow the fact, that you will discuss a counter example below}
+
+
+
+% \chmp{
+%     Please add citations to the next section. On a more general note, I'm not sure what this discussion adds 
+%     to the thesis and also I'm note sure, I would really go along with calling all these things priors. I think
+%     more relevant is that you add all kinds of assumptions or biases, that are not updated with the data.
+% }
+% One final note regarding priors, the clean separation of priors in the Bayesian framework does not hold in practice, particularly in the context of deep learning. 
+% Many of the assumptions we make, optimizations we use, and approximations we resort to affect the posterior we obtain, although they are not specified as explicit priors. In fact, with large deep models, the Bayesian approach is intractable. 
+% Even when employing a point estimate of the posterior \chmp{(MLE, isn't it? Why not name it as such.)}, we do not normally reach the global optimum. Thus the optimizer being used, hyperprameters like step and batch size, and approximations like variational inference all affect the resulting posterior. We consider them to be implicit priors. Unlike the explicit prior, those priors may interact with each other and the data in unforseen ways; their effect is not fixed apriori. Moreover, some of those priors have an effect which does not vanish as training data is increased. Dropout is a clear example, where the form of the posterior is defined apriori and does not change, even in the limit of infinite data. Another trivial example is learning rate and batch size in stochastic gradient descent, which if set poorly training may not converge at all, and the solution reached will likely be far off from the true posterior or its mode. 
+% When we talk about priors, we consider such factors to be included. 
