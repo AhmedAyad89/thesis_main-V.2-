@@ -16,7 +16,7 @@ In the following set of experiments we will split Blackbird by yaw, meaning that
     \caption{OOD}
   \end{subfigure}
   
-  \caption{Blackbird(2) test and OOD plots for C-RNN.}
+  \caption{Blackbird(2) prediction plots for C-RNN.}
   \label{fig:bb2_run}
 \end{figure}
 
@@ -47,11 +47,11 @@ In the following set of experiments we will split Blackbird by yaw, meaning that
         Epistemic($\mathcal{E}$) & 0.8 &  0.56 \\
         \midrule
     \end{tabular}
-    \caption{Blackbird(2) OOD discrimination power of the aleatoric($\mathcal{A}$) and epistemic($\mathcal{E}$) uncertainties for MC dropout.}
+    \caption{Blackbird(2) OOD discrimination power for MC dropout.}
     \label{tbl:bb2_discrimination}
 \end{table*}
 
-\Cref{tbl:bb2_discrimination} shows how well our uncertainties can discriminate between the two plits. We can see that the aleatoric uncertainty does slightly better than random with an AUROC of 0.54. The epistemic uncertainty has a better AUROC of 0.8, which means a random OOD input has probability 0.8 of having higher epistemic uncertainty than a test input. 
+\Cref{tbl:bb2_discrimination} shows how well our uncertainties can discriminate between the two splits. We can see that the aleatoric uncertainty does slightly better than random with an AUROC of 0.54. The epistemic uncertainty has a better AUROC of 0.8, which means a random OOD input has probability 0.8 of having higher epistemic uncertainty than a test input. 
 
 It is challenging to gauge how good or bad the AUROC of 0.8 is in this context. Again, to better judge the quality of the uncertainty estimates we look at the correlation between the uncertainties and the errors. \Cref{tbl:bb2_corr} show the correlations between our uncertainties and error scores. First we note that the aleatoric uncertainty correlates very well with the MAE on each split individually, with a roughly 0.9 Pearson correlation with the MAE for both the test and OOD splits individually. However, over the combined split, we see that the aleatoric uncertainty gives a weaker correlation of 0.7. This makes sense given the aleatoric uncertainty is on average the same for the test and OOD splits, while the MAE is more than four times larger over the OOD split. The epistemic uncertainty shows a strong correlation with the MAE over the individual splits and the combined split, with a Pearson correlation of 0.9 over the combined splits. Moreover, we also see a strong Pearson correlation of 0.83 with the Z-score over the combined splits, suggesting that the epistemic uncertainty does go up for errors which are not explained away by the epistemic uncertainty. 
 
@@ -76,14 +76,30 @@ It is challenging to gauge how good or bad the AUROC of 0.8 is in this context. 
 
         \toprule
     \end{tabular}
-    \caption{Blackbird(2) Pearson $\rho$ and Spearman $r$ correlations between the uncertainties and error scores for C-RNN.}
+    \caption{Blackbird(2) error-uncertainty correlation for C-RNN.}
     \label{tbl:bb2_corr}
 \end{table*}
 
 
 The correlation between the epistemic and aleatoric uncertainty is 0.61, suggesting that there is some overlap in the information they capture. But the results from \cref{tbl:bb2_corr} and \cref{tbl:bb2_discrimination} show that the epistemic uncertainty provides some information that is not contained in the aleatoric uncertainty. Namely, distinguishing between the in/out-of-distribution inputs. Next we will evaluate the performance of MC dropout. 
 
-\clearpage
+\begin{figure}[htbp]
+  \centering
+    \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{Experiments/figs/binned/bb2_crnn_epistemic.png}
+        \caption{Binned diagonal plots for the epistemic uncertainty.}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{Experiments/figs/binned/bb2_crnn_aleatoric.png}
+        \caption{Binned diagonal plots for the aleatoric uncertainty.}
+  \end{subfigure}
+    \caption[Blackbird(2) error-uncertainty diagonal plots for MC dropout]{Blackbird(2) binned diagonal plots of the  uncertainty vs error scores(NLL, MAE, Z-score) over the combined splits(Test+OOD). The marker color denotes the ratio of test to OOD points in the bin. }
+    \label{fig:bb2_uncertainty_corr}
+\end{figure}
+
+
+
 \subsection{MC dropout analysis}
 
 \begin{figure}[h]
@@ -99,7 +115,7 @@ The correlation between the epistemic and aleatoric uncertainty is 0.61, suggest
     \caption{OOD}
   \end{subfigure}
   
-  \caption{Blackbird(2) test and OOD plots for MC dropout.}
+  \caption{Blackbird(2) prediction plots for MC dropout.}
   \label{fig:bb2_dropout_run}
 \end{figure}
 
@@ -132,7 +148,7 @@ The correlation between the epistemic and aleatoric uncertainty is 0.61, suggest
         Epistemic($\mathcal{E}$) & 0.48 &  0.81 \\
         \midrule
     \end{tabular}
-    \caption{Revs OOD discrimination power of the aleatoric($\mathcal{A}$) and epistemic($\mathcal{E}$) uncertainties for MC dropout.}
+    \caption{blackbird(2) OOD discrimination power for MC dropout.}
     \label{tbl:bb2_dropout_discrimination}
 \end{table*}
 
@@ -159,7 +175,7 @@ The correlation between the epistemic and aleatoric uncertainty is 0.61, suggest
 
         \toprule
     \end{tabular}
-    \caption{Blackbird(2) Pearson $\rho$ and Spearman $r$ correlations between the uncertainties and error scores for MC dropout.}
+    \caption{Blackbird(2) error-uncertainty correlation for MC dropout.}
     \label{tbl:bb2_dropout_corr}
 \end{table*}
 

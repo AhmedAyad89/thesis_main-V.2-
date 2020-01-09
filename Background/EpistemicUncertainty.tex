@@ -5,19 +5,13 @@ $$
 $$
 
 
-The epistemic uncertainty comes from compounding two factors, the uncertainty in $\pdf{\theta | \mathcal{D}}$, and the \emph{disagreement} between the parameters with high posterior probability  $\pdf{\theta | \mathcal{D}}$. To unpack this, the uncertainty in $\pdf{\theta | \mathcal{D}}$ is simply how spread out the posterior is over different parameter settings. For instance, if the posterior is Gaussian, then the higher the variance of that Gaussian the higher the uncertainty is. However, the uncertainty over parameters does not directly translate into uncertainty in the posterior predictive distribution. This also depends on how much the predictions from those different parameters diverge. Being uncertain over a wide range of parameters which all give the same prediction, will result in no epistemic uncertainty in the predictive distribution. On the other hand, having a posterior concentrated over a few parameter settings which have large differences in their predictions can result in high epistemic uncertainty. In an ideal setting, the posterior predictive distribution captures all our epistemic uncertainty; \cref{eq:bayesian_predictive} gives the \emph{correct} predictive distribution.
+The epistemic uncertainty comes from compounding two factors, the uncertainty in $\pdf{\theta | \mathcal{D}}$, and the \emph{disagreement} between the parameters with high posterior probability  $\pdf{\theta | \mathcal{D}}$. 
+To unpack this, the uncertainty in $\pdf{\theta | \mathcal{D}}$ is simply how spread out the posterior is over different parameter settings. For instance, if the posterior is Gaussian, then the higher the variance of that Gaussian the higher the uncertainty is. Intuitively, this is saying we have not seen enough data to be sure what the correct parameters are.
+
+However, the uncertainty over parameters does not directly translate into uncertainty in the posterior predictive distribution. This also depends on how much the predictions from those different parameters diverge. Being uncertain over a wide range of parameters which all give the same prediction, will result in no epistemic uncertainty in the predictive distribution. On the other hand, having a posterior concentrated over a few parameter settings which have large differences in their predictions can result in high epistemic uncertainty. In an ideal setting, the posterior predictive distribution captures all our epistemic uncertainty; \cref{eq:bayesian_predictive} gives the \emph{correct} predictive distribution. However, we will see in the next section that there are realistic settings where the an assumption of Bayes rule is broken, and how this might results in \emph{incorrect} predictive distributions. 
 
 
-\chmp{
-
-Not sure talking about different distributions is all that clear. How about talking about the domain of the inputs and how your training data 
-is sample of all possible inputs. And then you can introduce two distributions, one training and one at test time, say dry and snow, and argue
-how it can be that they only have limited overlap. 
-
-Then you can also avoid to same extent of having to introduce the "unversial" distribution and names for the distributions.
-
-}
-
+\subsection{Epistemic uncertainty under distribution shift}
 The Bayesian framework, alongside most other practical ML approaches~\citep[chapter~5]{goodfellow2016deep}, assume the training data is independently and identically distributed(i.i.d) from the target distribution, the target distribution being the one we intend to perform inference on. Problems arise when this assumption is broken.
 Let the target distribution be $\pdf{x,y} = \pdf[target]{x} \pdf{y|x}$.
 We consider a scenario where the training data is drawn i.i.d from a training distribution which is different form the target distribution, $\pdf{x,y} = \pdf[train]{x} \pdf{y|x}$. Thus the problem is that the distribution over the inputs is different from training to inference. 
@@ -57,10 +51,7 @@ It depends on the priors and other underlying assumptions. If we choose the \emp
 
 To illustrate the difference, we take one i.i.d sampling and one biased sampling from a ground truth function which looks like the leftmost plot in \cref{fig:uncertainty_toy} and fit a Bayesian model to both. We used the bayesian ridge regression from scikit learn\citep{scikit-learn}, with the default hyper-parameters in both cases. Everything is the same, with the exception that the distribution over training inputs.
 
-\Cref{fig:bayesian_ridge} shows the results. The shaded region represents the epistemic uncertainty 
-\chmp{Does it though? I understood your argument above that there is a very specific part of a Bayesian model that is responsible for the epistemic uncertainty, I assume you plotted the combined uncertainty, didn't you?}
-\ahmed{There is no aleatoric uncertainty in this model, each individual model is deterministic}
-, it is two standard deviations wide. We can see that in the case of biased samples the model severely underestimates the uncertainty, with the points above ninety lying roughly eight standard deviations away from the mean. Note that we are not focused about the magnitude of the error, but on the high degree of certainty with which it is made i.e. if the error was the same, but the standard deviation was eight times larger, we could say that the model did well in estimating the uncertainty. 
+\Cref{fig:bayesian_ridge} shows the results. The shaded region represents the epistemic uncertainty, it is two standard deviations wide. We can see that in the case of biased samples the model severely underestimates the uncertainty, with the points above ninety lying roughly eight standard deviations away from the mean. Note that we are not focused about the magnitude of the error, but on the high degree of certainty with which it is made i.e. if the error was the same, but the standard deviation was eight times larger, we could say that the model did well in estimating the uncertainty. 
 
 \begin{figure}
     \centering
@@ -81,7 +72,6 @@ To further highlight the importance of the i.i.d assumption, \cref{fig:bayesian_
 
 
 In our running example of estimating vehicle velocity from sensor measurements. 
-\chmp{If you use the running example, you should have introduced the problem, but maybe you do not need to be so specific and just talk about the general behavior of a vehicle}.
 Suppose we train a model using data collected on dry roads. the car driving on icy roads is an example of being OOD.
 The question again is how valid is our estimate of epistemic uncertainty for OOD inputs. Let us take the case where our hypothesis space contains a model perfect on dry roads, another perfect on icy roads, and all other models have decent performance over both. Assume a uniform prior. Training on dry roads data alone, we eventually end up placing all the posterior mass on the dry roads models.
 This drives our epistemic uncertainty, as estimated in \cref{eq:bayesian_predictive}, down to zero everywhere. This means we will be making confident predictions on icy roads, although our predictions for icy road are potentially inaccurate. 

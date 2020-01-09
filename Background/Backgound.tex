@@ -3,6 +3,16 @@
 % \graphicspath{{./}{./Backgound/}}
 \begin{document}
 
+\chmp{
+To follow up on the Bayes discussion: I think in its current form your argument is somewhat unclear, as you introduce the uncertainty contributions \emph{solely} in the Bayesian framework, but then argue that this is not enough. 
+How about making this argument explicit upfront, by 
+
+\begin{itemize}
+    \item by mentioning that you introduce the Bayesian framework as one, commonly used, modelling approach for epistemic uncertanity
+    \item by adding an explicit section titled "Epsitemic uncertainty under distribution shift" (just split the section Epsitemic uncertainty)
+    \item By arguing that parameter uncertainty does not seem to be biggest cause for epsitimic uncertainty in our setup
+\end{itemize}
+}
 
 \section{Virtual sensing}
 
@@ -12,14 +22,16 @@ The standard virtual sensor design requires two components, a model of the proce
 
 The second component in the standard approach is an estimator for the model. For instance when the dynamics are linear and the noise is assumed to be Gaussian, a Kalman filter~\citep{zarchan2013fundamentals} is the optimal estimator~\citep{canale2008study}. When the dynamics are not linear, or the noise model is not Gaussian, good estimators become harder to derive, and practical ones give sub-optimal performance~\citep{milanese2006filter}. 
 
-The task of model identification and deriving an estimator is the most challenging and crucial part in obtaining good virtual sensors~\citep{li2011review}, particularly when the process is involved and the dynamics are non-linear.  
+The task of model identification and deriving an estimator is the most challenging and crucial part in obtaining good virtual sensors~\citep{li2011review}, particularly when the process is complex and the dynamics are non-linear.  
 
 Approaches based on modern machine learning take a shortcut, by combining system identification, and obtaining a non-linear estimator into one step~\citep{rastogi2017virtual}. Moreover, such approaches can still integrate physical priors along their data driven components~\citep{costa1999hybrid, graber2018hybrid}. Another advantage of this approach is that it can typically model complex systems better than hand-crafted counterparts, since it has more degrees of freedom, and could potentially capture highly complex dynamics~\cite{li2011review}. 
 
-This motivates our approach to apply machine learning to develop virtual sensors for vehicle dynamics, in hope of improving upon the accuracy of the classical simplified physical models currently in use~\cite{graber2018hybrid}. In the following section we will give a brief description of vehicle dynamics, and the target quantities we wish to model. 
+This motivates our approach to apply machine learning to develop virtual sensors for vehicle dynamics, in hope of improving upon the accuracy of the classical simplified physical models currently in use. In the following section we will give a brief description of vehicle dynamics, and the target quantities we wish to model. 
 
 \subsection{Modelling vehicle dynamics}
 \label{sec:vehicle_dynamics}
+
+\chmp{I would rename this section as "Physical models" and also include the drone as an example. The equations on the level of Newton should be the same.}
 
 The study of vehicle dynamics is concerned with the interplay between the forces which act on a vehicle and its motion~\citep{schramm2014vehicle}. In this work we wish to design a virtual sensor for the longitudinal and lateral components of velocity for vehicles. There are two standard frames of reference when discussing vehicle dynamics. 
 
@@ -27,7 +39,7 @@ The study of vehicle dynamics is concerned with the interplay between the forces
 
 \textbf{World coordinate system(world frame)} is a right-hand orthogonal coordinate system fixed on the earth~\citep{gill2000vehicle}.
 
-The velocities of the vehicle can be used to compute the side-slip angle, which is defined as the angle between the longitudinal axis and the vehicle velocity vector in the vehicle coordinate system. Estimation of the side-slip angle is of interest in the automotive industry as it is crucial for some advanced vehicle control systems\citep{jin2017vehicle}. 
+The velocities of the vehicle can be used to compute the side-slip angle, which is defined as the angle between the longitudinal axis and the vehicle velocity vector in the vehicle coordinate system. Estimation of the side-slip angle is of interest in the automotive industry as it is crucial for some advanced vehicle control systems~\citep{jin2017vehicle}. 
 
 The fundamental starting point to studying vehicle dynamics is Newton's second law, which in our context states that the acceleration of a body in a given direction is equal to the sum of all external forces acting on the  body in that given direction. 
 
@@ -35,12 +47,11 @@ The fundamental starting point to studying vehicle dynamics is Newton's second l
     F_X = M \cdot a_X
 \end{equation}{}
 
-In order to practically estimate vehicle dynamics, simplified models of the vehicle and the forces acting on it are assumed, we refer the reader to \cite{schramm2014vehicle} for comprehensive coverage of vehicle models and estimation of relevant forces. Deep neural networks can be universal function approximators, and thus could overcome the limitations of simplified physical models~\citep{graber2018hybrid}.
-
+In order to practically estimate vehicle dynamics, simplified models of the vehicle and the forces acting on it are assumed, we refer the reader to \cite{schramm2014vehicle} for comprehensive coverage of vehicle models and estimation of relevant forces.
 
 \section{Machine learning(ML)}
 
-The virtual sensor we want is simply mapping from the available measurements to the target measurement, thus our virtual sensing problem boils down to a \textbf{regression} task in ML terms. In a regression task, the learning algorithm is required to output some function $f$ which takes the input $x$ and outputs the correct target $y$~\citep[chapter~5]{goodfellow2016deep}. The learning paradigm we will be following to obtain such a function from data is \textbf{supervised learning}. In supervised learning the algorithm is provided with a dataset of ground truth input/output pairs~\citep[chapter~5]{goodfellow2016deep}. For example in the case of our virtual sensor, the inputs would be measurements from the cheap sensors and the outputs would be the corresponding measurement from the sensor we are trying to emulate. we refer to this as the training dataset or $\mathcal{D}$. 
+The virtual sensor we aim for is simply mapping from the available measurements to the target measurement, thus our virtual sensing problem boils down to a \textbf{regression} task in ML terms. In a regression task, the learning algorithm is required to output some function $f$ which takes the input $x$ and outputs the correct target $y$~\citep[chapter~5]{goodfellow2016deep}. The learning paradigm we will be following to obtain such a function from data is \textbf{supervised learning}. In supervised learning the algorithm is provided with a dataset of ground truth input/output pairs~\citep[chapter~5]{goodfellow2016deep}. For example in the case of our virtual sensor, the inputs would be measurements from the cheap sensors and the outputs would be the corresponding measurement from the sensor we are trying to emulate. we refer to this as the training dataset or $\mathcal{D}$. 
 
 A common approach to supervised learning is based on estimating the probability distribution \pdf{y|x}, this can be done via defining a parametric family of distributions \pdf{y|x, \theta} and a likelihood function \pdf{\mathcal{D}|\theta}. We then find the parameter vector $\theta$ which maximizes the likelihood function~\citep[chapter~5]{goodfellow2016deep}. This approach is known as Maximum Likelihood Estimation(MLE), for further details we refer the reader to \cite[chapter~5]{goodfellow2016deep}. 
 
@@ -56,41 +67,53 @@ Where $g$ is a non-linearity and $\mathbf{w}, b \in \theta$ are the parameters o
 
 The structure we have just described is for feed-forward networks.
 For the virtual sensing tasks we are interested in the inputs and outputs are temporal sequences, where at each time-step the model takes the available measurements as input and gives the target measurement as output.
-When the data has a sequential structure, recurrent neural networks(RNN)~\cite{rumelhart1986learning} can take advantage of that, they can process sequences of variable size, and scale to arbitrarily long sequences~\cite[chapter~10]{goodfellow2016deep}. Let $x=(x^1, x^2, \cdots, x^n)$ be a sequential input, the heart of an RNN is a recurrent layer
+
+Recurrent Neural Networks(RNN)~\citep{rumelhart1986learning} can take advantage of the sequential nature of data, they can process sequences of variable size, and scale to arbitrarily long sequences~\cite[chapter~10]{goodfellow2016deep}.
+Let $x=(x^1, x^2, \cdots, x^n)$ be a sequential input, the heart of an RNN is a recurrent layer
 $$
     h(x^t) = g(x^t, h(x^{t-1}))
 $$
 
 Namely a recurrent layer uses the result from the previous time-step as an input for the computation of the current time-step. This enables an RNN to process a long sequence step by step, and still account for global patterns and interactions across time-steps. 
 
-A conventional recurrent layer is defined as~\citep{pascanu2013construct}
+A standard recurrent layer is defined as~\citep{pascanu2013construct}
 $$
         h(x^t) = g(w^\top x^t + U^\top h(x^{t-1}))
 $$
 
-However more complex recurrent layers such as long-term short-memory(LSTM)~\citep{hochreiter1997long} and gated recurrent units(GRU)~\citep{cho2014learning} have grown in popularity nowadays. For more information on RNNs we refer the reader to \cite[chapter~10]{goodfellow2016deep}.
+However more complex recurrent layers such as long-term short-memory(LSTM)~\citep{hochreiter1997long} and gated recurrent units(GRU)~\citep{cho2014learning} have grown in popularity since they have been found to handle longer sequences. For more information on RNNs we refer the reader to \cite[chapter~10]{goodfellow2016deep}.
 
 Deep learning models have already shown good performance in a variety of tasks, including virtual sensors~\citep{graber2018hybrid, alonso2019virtual, escobedo2016neural, iwashita2019tu}.
-The focus of this work is not just to fit good predictors, but to have robust uncertainty estimates for our predictions. In the next section, we will introduce the Bayesian framework for learning, which gives a probabilistic interpretation of the learning process, and provides the language we need to discuss uncertainty. Then we will provide a breakdown of the sources of uncertainty in our predictions, and how they can be estimated.  
+Howeever, the focus of this work is not just to fit good predictors, but to have robust uncertainty estimates for our predictions.
+
+In the next section, we will introduce the Bayesian framework for learning, which gives a principled probabilistic interpretation for learning, and provides the language we need to discuss uncertainty. Then we will provide a breakdown of the sources of uncertainty in machine learning, and how they can be modeled.  
 
 \subsection{Bayesian framework}
-
 \input{Background/BayesianFramework.tex}
 
 
 \section{Uncertainty in Machine Learning(ML)}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Background/aleatoric_epistemic.png}
+    \caption[Aleatoric vs. epistemic uncertainty]{A visual depiction of aleatoric and epistemic uncertainty. In the right plot, the query point has no epistemic uncertainty and high aleatoric uncertainty. In the left plot we have high epistemic uncertainty about the query point and its true aleatoric uncertainty is not known to us.}
+    \label{fig:aleatoric_vs_epistemic}
+\end{figure}
 
 In this section, we will explore the sources of uncertainty in machine learning, following \citet{der2009aleatory} we break down uncertainty into
 
 \begin{itemize}
     \item \textbf{Aleatoric uncertainty} or the "known-unknown" is uncertainty stemming from the stochasticity of the process we are modelling. Also referred to as the irreducible uncertainty, since we cannot reduce it by gathering more data. For example, data generated by balanced coin flips has high aleatoric uncertainty. We cannot be, certain of the outcome of the next flip, no matter how much data we collect about the coin. 
 
-    \item \textbf{Epistemic uncertainty} is model uncertainty or the uncertainty which can be reduced by getting more knowledge. It denotes situations where we cannot determine the outcome of a deterministic process; we are uncertain as to which model generated the data. 
+    \item \textbf{Epistemic uncertainty} is model uncertainty or the uncertainty which can be reduced by getting more knowledge. It denotes situations where we are uncertain as to what model generated the data.
     Note that unlike aleatoric uncertainty, this is primarily about our knowledge, rather than a property of the phenomenon we are modeling. For instance a heavily biased coin is initially high in epistemic uncertainty, but as we see more flips, we become more certain about the outcome of the next flip.
 \end{itemize}
 
-We will explore each uncertainty in more detail, discuss its relevance to us, and see where it appears in the posterior predictive distribution. 
+\Cref{fig:aleatoric_vs_epistemic} shows a depiction of both uncertainties in the context of classifying points sampled from two Gaussians. In the left plot, we see the true model which generated the data, yet we are uncertain about which class the query point came from. This is a depiction of high aleatoric uncertainty. 
+In the right plot, we do not know the true model, we only have some prior guess over the Gaussians which generated the data, this is a situation with high epistemic uncertainty. Note that in this case, we do not know what the aleatoric uncertainty for the query point is. Depending on what the true model is, the aleatoric uncertainty may be high or low. 
 
+We will explore each uncertainty in more detail, discuss its relevance to us, and see where it appears in the posterior predictive distribution. 
 
 
 \subsection{Aleatoric Uncertainty}
@@ -105,22 +128,23 @@ $$
     \pdf{y|x; \mathcal{D}}=  \int \pdf{\theta | \mathcal{D}}\, \pdf{y|\theta, x} \, d\theta
 $$
 
-The aleatoric uncertainty comes from the individual models $\pdf{y|\theta, x}$. If the true model \pdf{x|y} is known, then we can perfectly predict the aleatoric uncertainty. However, the less we know about \pdf{x|y}, the less we are able to predict the aleatoric uncertainty. Note that this is different from \textbf{knowing} that we have high aleatoric uncertainty. 
-Epistemic uncertainty represents our lack of knowledge about the true model \pdf{x|y}, when our epistemic uncertainty is high, we cannot make good predictions of the aleatoric uncertainty. In the next section we will discuss epistemic uncertainty, and where it fits in the Bayesian framework. 
+The aleatoric uncertainty comes from the individual models $\pdf{y|\theta, x}$. If the true model \pdf{y|x} is known, then we can perfectly predict the aleatoric uncertainty. However, the less we know about \pdf{x|y}, the less we are able to predict the aleatoric uncertainty. Note that this is different from \textbf{knowing} that we have high aleatoric uncertainty. 
 
+Epistemic uncertainty represents our lack of knowledge about the true model \pdf{x|y}, when our epistemic uncertainty is high, we cannot make good predictions of the aleatoric uncertainty. In the next section we will discuss epistemic uncertainty, and where it fits in the Bayesian framework. 
 
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Background/uncertainty_beliefs.png}
-    \caption{Datasets with the same clean linear region(black), followed by various possible dynamics(red)}
+    \caption{Different beliefs equally consistent with the sampled data}
     \label{fig:uncertainty_toy}
 \end{figure}
 
 \subsection{Epistemic uncertainty}
-
+\label{sec:epistemic}
 \input{Background/EpistemicUncertainty.tex}
 
-\subsection{Formalizing the problem}
+\subsubsection{Formalizing the problem}
+\label{sec:formalizing}
 
 In the previous section, we described a situation where the training and target distribution do not match up, we have seen that the Bayesian framework may produce overconfident results in such situations. In this section we will formalize this setting and give it a principled treatment. Our focus will be on obtaining sound uncertainty estimates. This section is our own novel work, it is not a standard approach to the best of our knowledge. 
 
@@ -174,16 +198,15 @@ The parameters $\Psi$ can simply be chosen to increase uncertainty in some sense
 For regression, suppose our model outputs $\mu_\Psi$ and $\sigma_\Psi$ as parameters of a Gaussian. We may define the model to output a unit Gaussian s.t. \pdf{y|, x, \Psi} = $\mathcal{N}(y; 0, 1)$. We could also use richer prior knowledge. Let $\pdf{y|x, \Theta} = \mathcal{N}(y; \mu_y, \sigma_y)$. We can then define $\pdf{y|x, \Psi} = \mathcal{N}(y; \mu_y, \sigma_\Psi)$, with $\sigma_\Psi$ being a hyper-parameter. This model assumes that our best guess for an OOD input is still the mean prediction from the trained model, however with more uncertainty. 
 % This is in fact the model , noise contrastive priors~\citep{Hafner2018NoiseCP}.
 
-This framework requires substantial prior knowledge, which dependent on the context can be a challenge or an opportunity. Intuitively, this prior knowledge is required to fill the gaps we are left with due to breaking the i.i.d assumption. 
+This framework requires substantial prior knowledge, which depending on the context can be a challenge or an opportunity. Intuitively, this prior knowledge is required to fill the gaps we are left with due to breaking the i.i.d assumption. 
 
 In this work we will not focus on designing the priors, but rather on the one central quantity of this framework which can be learned from data: \pdf[train]{x}. This probability is central to computing the posterior predictive distribution we proposed in \cref{eq:final_posterior}. Intuitively, the higher the probability of an input under the training distribution, the more weight we give to $\Theta$ the model learned under the training distribution. The probability of the input alone is not sufficient to make a full prediction.
 
 However, there are works in current machine learning which aim to estimate \pdf[train]{x}, and simply return this as a signal for whether the model's prediction can be trusted~\citep{vasilev2018q, pidhorskyi2018generative}. This will be our strategy. Our experimental results in \cref{ch:experiments}, support the claim that the model's errors do correlate inversely with the probability of the input, and that excluding low probability inputs is a practical strategy for pruning out unreliable predictions. 
 
-In the next chapter, we will present our compression RNNs, which can effectively learn to estimate the training distribution density for temporal data and give a strong predicitve preformance.  
+In the next chapter, we will present our compression RNNs, which can effectively learn to estimate the training distribution density for temporal data and give a strong predictive performance.  
 
   
-
 
 % \subsection{Closing thoughts}
 
