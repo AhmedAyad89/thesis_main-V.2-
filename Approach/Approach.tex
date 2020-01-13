@@ -3,13 +3,14 @@
 
 \begin{document}
 
-In this chapter we will present our compression RNNs(C-RNN) designed to perform virtual sensing and provide reliable uncertainty estimates for its predictions. Recal we want to design virtual sensors  
+In this chapter we will present our Compression RNN (C-RNN) designed to perform virtual sensing and provide reliable uncertainty estimates for its predictions. We formulate the virtual sensing problem as a time series regression, and use Deep Learning~\citep{goodfellow2016deep} to solve it.
 
-Our general strategy is to use Recurrent Neural Networks(RNN) for modelling and prediction over time series data. 
+Our general strategy is to use Recurrent Neural Networks(RNN) for prediction and uncertainty estimation over time series data. 
 The aleatoric uncertainty is modeled it as part of the phenomenon i.e. we learn to predict it from the data.
-In terms of epistemic uncertainty, we focus on uncertainty stemming from OOD inputs, as we found in practice that it presents to biggest challenge for our applications. Our general strategy will be to model the training distribution $P(x)$, in order to be able to determine the likelihood of the input. That likelihood can then be used to estimate the epistemic uncertainty, or at least the component of it stemming from OOD inputs. Our models can be extended to account for parameter uncertainty by using techniques such as Monte-Carlo dropout\citep{gal2016dropout}. 
 
-In the following subsections, we will begin by discussing how to model the training distribution, how to use that model to estimate epistemic uncertainty. Then we will present our full model, and how we train it.
+For the epistemic uncertainty, we focus on uncertainty stemming from OOD inputs, as we found in practice that it presents to biggest challenge for our applications (see \cref{ch:experiments}). Our general strategy will be to model the training distribution \pdf[train]{x}, in order to be able to determine the probability of the input. That probability can then be used to estimate the epistemic uncertainty, or at least the component of it stemming from OOD inputs. Our models can be extended to account for parameter uncertainty by using techniques such as Monte-Carlo dropout\citep{gal2016dropout}, but our experiments in \cref{ch:experiments} suggest that there is not much to gain from adding MC dropout to our model. 
+
+In the following subsections, we will begin by discussing how to model the training distribution, how to use that model to estimate epistemic uncertainty. Then we will present our C-RNNs, and how we train them.
 
 \section{Modelling the training distribution}
 \label{sec:information}
@@ -22,7 +23,7 @@ Following the minimum description length principle\citep{rissanen1978modeling}, 
 \end{equation}{}
 is equal to the expected number of additional bits required to compress the data from \pdf[train]{x} using \pdf{x|\theta}~\citep[chapter~5]{mackay2003information}. The KL hits its minimum of zero when the two distributions match exactly. Thus optimizing $\theta$ to minimize the number of bits required to compress the data is equivalent to minimizing the KL divergence between our family of distributions and the true distribution. 
 
-Thus the task of modelling the distribution boils down to minimizing the expected number of bits required to compress data drawn from that distribution. We will use the training samples $X={x_1 \cdots x_n}$ to compute and optimize a monte-carlo estimate of that expectation. The KL becomes 
+Thus the task of modelling the distribution boils down to minimizing the expected number of bits required to compress data drawn from that distribution. We will use the training samples $X={x_1 \cdots x_n}$ to compute and optimize a Monte-Carlo estimate of that expectation. The KL becomes 
 \begin{equation}
     \label{eq:mc_kl}
     KL(\pdf[]{x} || \pdf{x|\theta}) = - \frac{1}{N} \sum_{x \in X} log{(\pdf{x|\theta})} dx + const
@@ -102,7 +103,7 @@ We let the prior over $z$ at time $t$ depend on $z^{t-1}$, rather than having a 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{Approach/rnn_architecture.png}
-    \caption{The C-RNN architecture, at each timestep the network outputs the mean and std of three Gaussians}
+    \caption[C-RNN architecture]{The C-RNN architecture, at each timestep the network outputs the mean and std of three Gaussians}
      \label{fig:architecture}
 \end{figure}
 

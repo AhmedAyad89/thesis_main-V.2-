@@ -3,16 +3,7 @@
 % \graphicspath{{./}{./Backgound/}}
 \begin{document}
 
-\chmp{
-To follow up on the Bayes discussion: I think in its current form your argument is somewhat unclear, as you introduce the uncertainty contributions \emph{solely} in the Bayesian framework, but then argue that this is not enough. 
-How about making this argument explicit upfront, by 
 
-\begin{itemize}
-    \item by mentioning that you introduce the Bayesian framework as one, commonly used, modelling approach for epistemic uncertanity
-    \item by adding an explicit section titled "Epsitemic uncertainty under distribution shift" (just split the section Epsitemic uncertainty)
-    \item By arguing that parameter uncertainty does not seem to be biggest cause for epsitimic uncertainty in our setup
-\end{itemize}
-}
 
 \section{Virtual sensing}
 
@@ -24,14 +15,12 @@ The second component in the standard approach is an estimator for the model. For
 
 The task of model identification and deriving an estimator is the most challenging and crucial part in obtaining good virtual sensors~\citep{li2011review}, particularly when the process is complex and the dynamics are non-linear.  
 
-Approaches based on modern machine learning take a shortcut, by combining system identification, and obtaining a non-linear estimator into one step~\citep{rastogi2017virtual}. Moreover, such approaches can still integrate physical priors along their data driven components~\citep{costa1999hybrid, graber2018hybrid}. Another advantage of this approach is that it can typically model complex systems better than hand-crafted counterparts, since it has more degrees of freedom, and could potentially capture highly complex dynamics~\cite{li2011review}. 
+Approaches based on modern machine learning take a shortcut, by combining system identification, and obtaining a non-linear estimator into one step~\citep{rastogi2017virtual}. Moreover, such approaches can still integrate physical priors along their data driven components~\citep{costa1999hybrid, graber2018hybrid}. Another advantage of this approach is that it can typically model complex systems better than hand-crafted counterparts, since it has more degrees of freedom, and could potentially capture highly complex dynamics~\citep{li2011review}. 
 
 This motivates our approach to apply machine learning to develop virtual sensors for vehicle dynamics, in hope of improving upon the accuracy of the classical simplified physical models currently in use. In the following section we will give a brief description of vehicle dynamics, and the target quantities we wish to model. 
 
-\subsection{Modelling vehicle dynamics}
+\subsection{Physical models}
 \label{sec:vehicle_dynamics}
-
-\chmp{I would rename this section as "Physical models" and also include the drone as an example. The equations on the level of Newton should be the same.}
 
 The study of vehicle dynamics is concerned with the interplay between the forces which act on a vehicle and its motion~\citep{schramm2014vehicle}. In this work we wish to design a virtual sensor for the longitudinal and lateral components of velocity for vehicles. There are two standard frames of reference when discussing vehicle dynamics. 
 
@@ -68,7 +57,7 @@ Where $g$ is a non-linearity and $\mathbf{w}, b \in \theta$ are the parameters o
 The structure we have just described is for feed-forward networks.
 For the virtual sensing tasks we are interested in the inputs and outputs are temporal sequences, where at each time-step the model takes the available measurements as input and gives the target measurement as output.
 
-Recurrent Neural Networks(RNN)~\citep{rumelhart1986learning} can take advantage of the sequential nature of data, they can process sequences of variable size, and scale to arbitrarily long sequences~\cite[chapter~10]{goodfellow2016deep}.
+Recurrent Neural Networks(RNN)~\citep{rumelhart1986learning} can take advantage of the sequential nature of data, they can process sequences of variable size, and scale to arbitrarily long sequences~\citep[chapter~10]{goodfellow2016deep}.
 Let $x=(x^1, x^2, \cdots, x^n)$ be a sequential input, the heart of an RNN is a recurrent layer
 $$
     h(x^t) = g(x^t, h(x^{t-1}))
@@ -92,7 +81,7 @@ In the next section, we will introduce the Bayesian framework for learning, whic
 \input{Background/BayesianFramework.tex}
 
 
-\section{Uncertainty in Machine Learning(ML)}
+\section{Uncertainty in Machine Learning}
 
 \begin{figure}
     \centering
@@ -130,7 +119,7 @@ $$
 
 The aleatoric uncertainty comes from the individual models $\pdf{y|\theta, x}$. If the true model \pdf{y|x} is known, then we can perfectly predict the aleatoric uncertainty. However, the less we know about \pdf{x|y}, the less we are able to predict the aleatoric uncertainty. Note that this is different from \textbf{knowing} that we have high aleatoric uncertainty. 
 
-Epistemic uncertainty represents our lack of knowledge about the true model \pdf{x|y}, when our epistemic uncertainty is high, we cannot make good predictions of the aleatoric uncertainty. In the next section we will discuss epistemic uncertainty, and where it fits in the Bayesian framework. 
+Epistemic uncertainty represents this lack of knowledge about the true model \pdf{x|y}. In the next section we will discuss epistemic uncertainty, and where it fits in the Bayesian framework. 
 
 \begin{figure}
     \centering
@@ -168,9 +157,10 @@ $\Theta$ basically contains all the knowledge we gained from the training data. 
 
 As we see no data from the other distribution \pdf{x|z=0}, we will define a model with parameters $\Psi$. This model should be our best knowledge about \pdf{y|x} over the distribution \pdf{x|z=0}. 
 Now we have two models $\Theta$ and $\Psi$, to make predictions we form a posterior predictive distribution
-$$
+\begin{equation}{}
+    \label{eq:full_formalizing_posterior}
     \pdf{y|x} = \pdf{\Theta|x} \pdf{y| x; \Theta} + \pdf{\Psi|x} \pdf{y | x; \Psi}
-$$
+\end{equation}
 
 We will make the simplifying assumption that $\Theta$ is the right model for points coming from the training distribution, and $\Psi$ is the right model for points coming from the other distribution. The means that \pdf{\Theta|z=1} and \pdf{\Psi|z=0} are set to one; if we know which distribution the point came from, we know which model to use for prediction. This means that we can write
 \begin{equation}

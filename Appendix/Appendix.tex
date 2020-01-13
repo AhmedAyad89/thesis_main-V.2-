@@ -1,4 +1,46 @@
-\section{Blackbird first split}
+\section{Model details}
+
+We use the same basic architecture for all models. Let the size of an output layer be twice the size of the output space, for predicting mean and standard deviation. The output layer has a softplus activation for the units predicting standard deviation, and identity activation for units predicting means. We present the architecture for our modules
+
+\begin{itemize}
+    \item $g(x, z)$ 
+        \begin{flushleft}2x\{Fully Connected (fc) layers with 256 units (Relu)\}\end{flushleft}
+        \vspace{-15pt}
+        \begin{flushleft}\{Gated Recurrent Layer with 512 units\}               \end{flushleft}
+    
+    \item $h(z)$ 
+        \begin{flushleft}\{(fc) layer with 256 units (Relu)\}\end{flushleft}
+        \vspace{-15pt}
+        \begin{flushleft}\{Fully Connected output layer\}\end{flushleft}
+
+    \item $r(z)$
+        \begin{flushleft}\{(fc) layer with 256 units (Relu)\}\end{flushleft}
+        \vspace{-15pt}
+        \begin{flushleft}\{Fully Connected output layer\}\end{flushleft}
+        
+    \item $q(z)$ 
+        \begin{flushleft}\{(fc) layer with 256 units (Relu)\}\end{flushleft}
+        \vspace{-15pt}
+        \begin{flushleft}\{Fully Connected output layer\}\end{flushleft}
+\end{itemize}
+
+For all models we optimize using  Adam with a base learning rate of $10^{-4}$. We use a cosine learning rate schedule, with max learning rate of 0.1, min learning rate of 0.005, and a period of 100 iterations. 
+
+\subsubsection{C-RNN}
+
+We use cyclical annealing schedule~\citep{liu2019cyclical} for the $\lambda$ hyperparameter(see \cref{eq:detailed_loss}). The cycle length is 11116 iterations, the minimum rate is 0.01. The maximum rate is 5.0 for the Revs datasets,  2.0 for Blackbird(1), and 5.0 for Blackbird(2).
+
+\subsubsection{MC dropout}
+
+We use a dropout rate of 0.5 for all experiments, and 20 Monte-Carlo samples for inference. 
+
+
+
+
+
+
+\clearpage
+\section{Blackbird(1) split}
 \label{app:blkbrd_split}
 
 For the first split of Blackbird, we start by excluding all the yaw forward sequences from the data. We then split the remaining data into in/out-of-distribution based on trajectories. The trajectories we use as in-distribution are

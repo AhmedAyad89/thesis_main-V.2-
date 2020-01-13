@@ -1,4 +1,5 @@
 \subsection{C-RNN analysis}
+\label{sec:crnn_analysis}
 
 \begin{table*}[htbp]
 \centering
@@ -23,22 +24,22 @@ We clarify this intuition with a simple experiment. We can manually increase the
 
 The epistemic uncertainty, on the other hand, increases from -4.6 to -0.25, confirming that the trend we saw in \cref{fig:Revs_run}.
 
-% \begin{figure}[htbp]
-%   \centering
+\begin{figure}[htbp]
+  \centering
   
-%   \begin{subfigure}[b]{\textwidth}
-%     \includegraphics[width=\textwidth]{Experiments/figs/revs_test.png}
-%     \caption{Test}
-%   \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{Experiments/figs/revs_test.png}
+    \caption{Test}
+  \end{subfigure}
   
-%   \begin{subfigure}[b]{\textwidth}
-%     \includegraphics[width=\textwidth]{Experiments/figs/revs_ood.png}
-%     \caption{OOD}
-%   \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{Experiments/figs/revs_ood.png}
+    \caption{OOD}
+  \end{subfigure}
   
-%   \caption[Revs prediction plots for C-RNN]{Revs test and ood plots for C-RNN. Aleatoric uncertainty represented as the shaded interval around the prediction(1 std on each side). Epistemic Uncertainty plotted in the bottom row. The green shading also represents the epistemic uncertainty overlayed over the graph. The green shading has the same scaling for the test and OOD plots.}
-%   \label{fig:Revs_run}
-% \end{figure}
+  \caption[Revs prediction plots for C-RNN]{Revs test and OOD plots for C-RNN. Aleatoric uncertainty represented as the shaded interval around the prediction(1 std on each side). Epistemic Uncertainty plotted in the bottom row. The green shading also represents the epistemic uncertainty overlayed over the graph. The green shading has the same scaling for the test and OOD plots.}
+  \label{fig:Revs_run}
+\end{figure}
 
 
 Those results are consistent with the expectations we formulated in \cref{ch:background}. It may seem surprising to some that the average aleatoric uncertainty does not go up at all over the OOD data, but as we said in \cref{subsec:aleatoric} model learns to estimate aleatoric uncertainty from the training data. In this light, it is not shocking that the average behavior does not change much across input regions. The model seems to be simply matching the statistics it learned during training. 
@@ -118,7 +119,7 @@ This is consistent with the numbers we see in \cref{tbl:revs_corr}, where we see
         \caption{Binned diagonal plots for the aleatoric uncertainty.}
     \label{fig:revs_aleatoric_corr}
   \end{subfigure}
-    \caption[Revs error-uncertainty diagonal plots for C-RNN]{Revs binned diagonal plots of the  uncertainty vs error scores(NLL, MAE, Z-score) over the combined splits(Test+OOD). The marker color denotes the ratio of test to OOD points in the bin. }
+    \caption[Revs error-uncertainty diagonal plots for C-RNN]{Revs binned diagonal plots of the  uncertainty vs error scores(NLL, MAE, Z-score) over the combined splits(Test+OOD) for C-RNN. The marker color denotes the ratio of test to OOD points in the bin. The error bars denote the standard deviation of the uncertainty within the bin.}
     \label{fig:revs_uncertainty_corr}
 \end{figure}
 
@@ -130,7 +131,7 @@ Lastly we wish to explore the relationship between our two uncertainties. We com
 
 MC dropout~\citep{gal2016dropout} is widely used as a tool to estimate epistemic uncertainty in deep learning. We have trained dropout models to see their behavior in our context. We use MC dropout is a variational approximation to the bayesian approach discussed in \cref{ch:background}~\citep{gal2016dropout}. 
 
-The dropout models we train estimate the aleatoric uncertainty identically to our models, via outputting the mean and variance of a Gaussian. Thus the main difference is in the epistemic uncertainty estimation. Note that our approach and dropout are more orthogonal than competing. They focus on different sources of uncertainty(cf. \ref{ch:background}) . Similar to the previous subsection, we will study the uncertainty dropout captures and how its two uncertainties interact with each other and the errors.
+The dropout models we train estimate the aleatoric uncertainty identically to our models, via outputting the mean and variance of a Gaussian. Thus the main difference is in the epistemic uncertainty estimation. Note that our approach and dropout are more orthogonal than competing. They focus on different sources of uncertainty(\ref{ch:background}) . Similar to the previous subsection, we will study the uncertainty dropout captures and how its two uncertainties interact with each other and the errors.
 
 \begin{table*}[htbp]
 \centering
@@ -142,27 +143,27 @@ The dropout models we train estimate the aleatoric uncertainty identically to ou
         OOD  &  2.55(4.9, 0.2)&  1.62(3.2, 0.02)& 2.42(4.6, 0.26)&  1.97(3.8, 0.16) \\
         \midrule
     \end{tabular}
-    \caption[Revs MC dropout performance.]{Revs MC dropout performance. The numbers are given with their std}
+    \caption[Revs MC dropout performance.]{Revs MC dropout performance.}
     \label{tbl:revs_dropout}
 \end{table*}
 
 
-% \begin{figure}[htbp]
-%   \centering
+\begin{figure}[htbp]
+  \centering
   
-%   \begin{subfigure}[b]{\textwidth}
-%     \includegraphics[width=\textwidth]{Experiments/figs/revs_dropout_test.png}
-%     \caption{Test}
-%   \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{Experiments/figs/revs_dropout_test.png}
+    \caption{Test}
+  \end{subfigure}
   
-%   \begin{subfigure}[b]{\textwidth}
-%     \includegraphics[width=\textwidth]{Experiments/figs/revs_dropout_ood.png}
-%     \caption{OOD}
-%   \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{Experiments/figs/revs_dropout_ood.png}
+    \caption{OOD}
+  \end{subfigure}
   
-%   \caption[Revs prediction plots for MC dropout]{Revs test and ood prediction plots for MC dropout. Aleatoric uncertainty represented as the shaded interval around the prediction(2 stds on each side). Epistemic Uncertainty plotted in the bottom row. The green shading also represents the epistemic uncertainty overlayed over the graph.}
-%   \label{fig:revs_dropout_run}
-% \end{figure}
+  \caption[Revs prediction plots for MC dropout]{Revs prediction plots for MC dropout. For plot description see \cref{sec:crnn_analysis}}
+  \label{fig:revs_dropout_run}
+\end{figure}
 
 \Cref{fig:revs_dropout_run} shows prediction plots for the dropout model. Again we see that the model performance decreases over the OOD input. Another important thing to notice is that the epistemic uncertainty lies in the same range for both the test and OOD input. We will look at the numbers.
 
@@ -207,7 +208,7 @@ Again we evaluate how well the uncertainties from the dropout model can discrimi
 
         \toprule
     \end{tabular}
-    \caption[Revs error-uncertainty correlation for MC-dropout]{Revs Pearson $\rho$ and Spearman $r$ correlations between the uncertainties and error scores for MC dropout. In the top half we check correlations with Aleatoric uncertainty, and in the bottom half with the epistemic uncertainty.}
+    \caption[Revs error-uncertainty correlation for MC-dropout]{Revs error-uncertainty correlation for MC-dropout. For table description see \cref{sec:crnn_analysis}}
     \label{tbl:revs_dropout_corr}
 \end{table*}
 
@@ -229,7 +230,7 @@ In fact, when we compute the correlation between the epistemic and aleatoric unc
         \includegraphics[width=\textwidth]{Experiments/figs/binned/revs_dropout_aleatoric.png}
         \caption{Binned diagonal plots for the aleatoric uncertainty.}
   \end{subfigure}
-    \caption[Revs error-uncertainty diagonal plots for MC dropout]{Revs binned diagonal plots of the  uncertainty vs error scores(NLL, MAE, Z-score) over the combined splits(Test+OOD). The marker color denotes the ratio of test to OOD points in the bin.}
+    \caption[Revs error-uncertainty diagonal plots for MC dropout]{Revs error-uncertainty diagonal plots for MC dropout. For plot description see \cref{sec:crnn_analysis}}
     \label{fig:revs_dropout_uncertainty_corr}
 \end{figure}
 

@@ -2,5 +2,18 @@
 \chapter{Abstract}
 
 %TODO: Abstract
-Out-of-distribution(OOD) detection, is becoming a crucial problem for modern machine learning. As models are being deployed in critical systems, we need a robust estimate of the model's certainty over its predictions. We argue that reliable uncertainty estimation must take into account the \emph{similarity} between the current input and the training distribution. Accordingly, we present a recurrent compression model which can detect low-probability inputs. 
+
+The advancement of Machine Learning (ML) capabilities is making its deployment to complex real world problems appealing. In the automotive industry ML can be beneficial in a wide range of tasks, from providing cheaper or more accurate sensors, to autonomous control of vehicles. 
+This thesis is focused on a key issue for the real world reliability of ML models: \textbf{Uncertainty estimation}.
+
+The goal is to design models which can return an uncertainty signal along with their predictions. The crucial requirement being that when model errors are high the uncertainty should also be high.
+% The ultimate goal of this line of research would be models that guarantee accurate predictions whenever their uncertainty estimates are low. For now, we present a model where we show a strong correlation between errors and uncertainties. Uncertainty estimates are important, because acting on incorrect predictions can have fatal consequences.
+We find that out-out-distribution(OOD) inputs are a major source of errors for our models. We formalize the problem of estimating uncertainties when OOD inputs are present. We show that model predictions are only reliable when the input is \emph{similar} to what the model has seen during training, even for ensembles or standard Bayesian models.  
+
+Based on this analysis, we introduce Compression Recurrent Neural Networks(C-RNN), an approach to learn time series predictors with robust uncertainty estimates. Our model is based on a principled and flexible approach to modelling the distribution of the training data, in order to deal with OOD inputs. 
+We preform in-depth experiments, studying the relationship between OOD inputs, model errors and model uncertainties, for our C-RNN model and MC dropout~\citep{gal2016dropout}. Our results show that uncertainty estimates from C-RNN are consistently more informative that MC dropout's. In our experiments on the Revs vehicle dynamics database, C-RNN manages to effectively eliminate OOD inputs with an Area under the ROC curve of 0.97, and manages to capture errors with a correlation of 0.85 between the errors and the uncertainty. 
+
+
+
+% Out-of-distribution(OOD) detection, is becoming a crucial problem for modern machine learning. As models are being deployed in critical systems, we need a robust estimate of the model's certainty over its predictions. We argue that reliable uncertainty estimation must take into account the \emph{similarity} between the current input and the training distribution. Accordingly, we present a recurrent compression model which can detect low-probability inputs. 
 

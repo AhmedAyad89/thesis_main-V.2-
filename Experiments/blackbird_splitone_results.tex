@@ -20,22 +20,22 @@ This section will follow the same structure as the previous one, but will procee
     \label{tbl:bb1_CRNN}
 \end{table*}
 
-% \begin{figure}[h]
-%   \centering
+\begin{figure}[h]
+  \centering
   
-%   \begin{subfigure}[b]{\textwidth}
-%     \includegraphics[width=\textwidth]{Experiments/figs/bb1_test.png}
-%     \caption{Test}
-%   \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{Experiments/figs/bb1_test.png}
+    \caption{Test}
+  \end{subfigure}
   
-%   \begin{subfigure}[b]{\textwidth}
-%     \includegraphics[width=\textwidth]{Experiments/figs/bb1_ood.png}
-%     \caption{OOD}
-%   \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{Experiments/figs/bb1_ood.png}
+    \caption{OOD}
+  \end{subfigure}
   
-%   \caption{Blackbird(1) prediction plots for C-RNN.}
-%   \label{fig:bb1_run}
-% \end{figure}
+  \caption{Blackbird(1) prediction plots for C-RNN. For plot description see \cref{sec:crnn_analysis}}
+  \label{fig:bb1_run}
+\end{figure}
 
 \Cref{fig:bb1_run} shows a flight sequence with the model predictions for a test and an OOD input. We can see from the plots that the model behavior and quality of predictions is quite similar for the two sequences. In \cref{tbl:bb1_CRNN} we can see that the performance of C-RNN is similar for the two splits.
 
@@ -65,7 +65,7 @@ This setting shows how metrics such as AUROC which are widely used in works for 
 
         \toprule
     \end{tabular}
-    \caption[Blackbird(1) error-uncertainty correlation for C-RNN]{Blackbird(1) Pearson $\rho$ and Spearman $r$ correlations between the uncertainties and error scores for C-RNN.}
+    \caption[Blackbird(1) error-uncertainty correlation for C-RNN]{Blackbird(1) error-uncertainty correlation for C-RNN. For table description see \cref{sec:crnn_analysis}}
     \label{tbl:bb1_corr}
 \end{table*}
 
@@ -84,7 +84,7 @@ The high correlation of the epistemic uncertainty with the errors is good news, 
         \includegraphics[width=\textwidth]{Experiments/figs/binned/bb1_crnn_aleatoric.png}
         \caption{Binned diagonal plots for the aleatoric uncertainty.}
   \end{subfigure}
-    \caption[Blackbird(1) error-uncertainty diagonal plots for C-RNN]{Blackbird(1) binned diagonal plots of the  uncertainty vs error scores(NLL, MAE, Z-score) over the combined splits(Test+OOD). The marker color denotes the ratio of test to OOD points in the bin. }
+    \caption[Blackbird(1) error-uncertainty diagonal plots for C-RNN]{Blackbird(1) error-uncertainty diagonal plots for C-RNN. For plot description see \cref{sec:crnn_analysis}}
     \label{fig:bb1_uncertainty_corr}
 \end{figure}
 
@@ -109,22 +109,22 @@ In the next section we will look at how MC dropout behaves, then we will follow 
     \label{tbl:bb1_dropout}
 \end{table*}
 
-% \begin{figure}[ht]
-%   \centering
+\begin{figure}[ht]
+  \centering
   
-%   \begin{subfigure}[b]{\textwidth}
-%     \includegraphics[width=\textwidth]{Experiments/figs/bb1_dropout_test.png}
-%     \caption{Test}
-%   \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{Experiments/figs/bb1_dropout_test.png}
+    \caption{Test}
+  \end{subfigure}
   
-%   \begin{subfigure}[b]{\textwidth}
-%     \includegraphics[width=\textwidth]{Experiments/figs/bb1_dropout_ood.png}
-%     \caption{OOD}
-%   \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{Experiments/figs/bb1_dropout_ood.png}
+    \caption{OOD}
+  \end{subfigure}
   
-%   \caption{Blackbird(1) prediction plots for MC dropout.}
-%   \label{fig:bb1_dropout_run}
-% \end{figure}
+  \caption[Blackbird(1) prediction plots for MC dropout]{Blackbird(1) prediction plots for MC dropout. For plot description see \cref{sec:crnn_analysis}}
+  \label{fig:bb1_dropout_run}
+\end{figure}
 
 \Cref{fig:bb1_dropout_run} shows a flight sequence with the model predictions for a test and an OOD sequence for the MC dropout model. Again we can see from the plots that the model behavior and quality of predictions is quite similar for the two sequences. \Cref{tbl:bb1_dropout} contains the basic performance metrics for the MC dropout model, and again we see that the model performance is similar for the test and OOD splits.
 
@@ -150,7 +150,7 @@ In terms of discriminating between the two splits, we can already see in \cref{t
 
         \toprule
     \end{tabular}
-    \caption[Blackbird(1) error-uncertainty correlations for MC dropout]{Blackbird(1) Pearson $\rho$ and Spearman $r$ correlations between the uncertainties and error scores for MC dropout.}
+    \caption[Blackbird(1) error-uncertainty correlations for MC dropout]{Blackbird(1) error-uncertainty correlations for MC dropout. For table description see \cref{sec:crnn_analysis}}
     \label{tbl:bb1_dropout_corr}
 \end{table*}
 
@@ -165,7 +165,7 @@ In terms of discriminating between the two splits, we can already see in \cref{t
         \includegraphics[width=\textwidth]{Experiments/figs/binned/bb1_dropout_aleatoric.png}
         \caption{Binned diagonal plots for the aleatoric uncertainty.}
   \end{subfigure}
-    \caption[Blackbird(1) error-uncertainty diagonal plots for MC dropout]{Blackbird(1) binned diagonal plots of the  uncertainty vs error scores(NLL, MAE, Z-score) over the combined splits(Test+OOD). The marker color denotes the ratio of test to OOD points in the bin. }
+    \caption[Blackbird(1) error-uncertainty diagonal plots for MC dropout]{Blackbird(1) error-uncertainty diagonal plots for MC dropout. For plot description see \cref{sec:crnn_analysis}}
     \label{fig:bb1_dropout_uncertainty_corr}
 \end{figure}
 

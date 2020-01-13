@@ -16,7 +16,7 @@ In the following set of experiments we will split Blackbird by yaw, meaning that
     \caption{OOD}
   \end{subfigure}
   
-  \caption{Blackbird(2) prediction plots for C-RNN.}
+  \caption[Blackbird(2) prediction plots for C-RNN]{Blackbird(2) prediction plots for C-RNN. For plot description see \cref{sec:crnn_analysis}}
   \label{fig:bb2_run}
 \end{figure}
 
@@ -30,7 +30,7 @@ In the following set of experiments we will split Blackbird by yaw, meaning that
         OOD  &  1.12(1.2, 1) &  11.2(11.8, 10.6) & 0.35(0.6, 0.34)&  -3\\
         \midrule
     \end{tabular}
-    \caption{Blackbird(2) C-RNN performance.}
+    \caption[Blackbird(2) C-RNN performance]{Blackbird(2) C-RNN performance.}
     \label{tbl:bb2_CRNN}
 \end{table*}
 
@@ -76,7 +76,7 @@ It is challenging to gauge how good or bad the AUROC of 0.8 is in this context. 
 
         \toprule
     \end{tabular}
-    \caption{Blackbird(2) error-uncertainty correlation for C-RNN.}
+    \caption[Blackbird(2) error-uncertainty correlation for C-RNN]{Blackbird(2) error-uncertainty correlation for C-RNN. For table description see \cref{sec:crnn_analysis}}
     \label{tbl:bb2_corr}
 \end{table*}
 
@@ -94,12 +94,17 @@ The correlation between the epistemic and aleatoric uncertainty is 0.61, suggest
         \includegraphics[width=\textwidth]{Experiments/figs/binned/bb2_crnn_aleatoric.png}
         \caption{Binned diagonal plots for the aleatoric uncertainty.}
   \end{subfigure}
-    \caption[Blackbird(2) error-uncertainty diagonal plots for MC dropout]{Blackbird(2) binned diagonal plots of the  uncertainty vs error scores(NLL, MAE, Z-score) over the combined splits(Test+OOD). The marker color denotes the ratio of test to OOD points in the bin. }
+    \caption[Blackbird(2) error-uncertainty diagonal plots for C-RNN]{Blackbird(2) error-uncertainty diagonal plots for C-RNN. For plot description see \cref{sec:crnn_analysis}}
     \label{fig:bb2_uncertainty_corr}
 \end{figure}
 
+\Cref{fig:bb2_uncertainty_corr} show the binned diagonal plots for errors versus uncertainties. The plots show that this split of Blackbird presents mixed results. Like the Revs results for C-RNN (\cref{fig:revs_uncertainty_corr}), the data seems to separated to a low error in distribution cluster, followed by a high error OOD tail. However, the pattern is not as clear.
+Some of the bins in the two extremes seem to be mostly coming from a single split, but in the middle we see mixed bins. 
+The aleatoric uncertainty exhibits the same dynamic we have seen on the Revs dataset(\cref{fig:revs_uncertainty_corr}), where it correlates well with the MAE in the beginning, then \emph{restarts} and correlates separately with the high error points. However, the pattern is not as strong here. 
+The epistemic uncertainty correlates well with the errors and separates the in/out-of-distribution points, however not as strongly as we see on the Revs dataset. In the next section, we will see how dropout handles this case. 
 
 
+\clearpage
 \subsection{MC dropout analysis}
 
 \begin{figure}[h]
@@ -115,7 +120,7 @@ The correlation between the epistemic and aleatoric uncertainty is 0.61, suggest
     \caption{OOD}
   \end{subfigure}
   
-  \caption{Blackbird(2) prediction plots for MC dropout.}
+  \caption[Blackbird(2) prediction plots for MC dropout]{Blackbird(2) prediction plots for MC dropout. For plot description see \cref{sec:crnn_analysis}}
   \label{fig:bb2_dropout_run}
 \end{figure}
 
@@ -135,7 +140,7 @@ The correlation between the epistemic and aleatoric uncertainty is 0.61, suggest
 
 
 
-\Cref{fig:bb2_dropout_run} shows a flight sequence with the model predictions for a test and an OOD sequence for the MC dropout model. A familiar patter emerges, the model visibly performs worse on the OOD sample, yet the epistemic and aleatoric uncertainties don't seem to capture that decrease in accuracy. \Cref{tbl:bb2_dropout} contains the performance measures. We can see the MAE and NLL increase from 0.27 and 0.22 respectively over the test split, to 1.1 and 7.3 over the OOD split. However, the epistemic and aleatoric uncertainties show no increase with the aleatoric uncertainty being actually lower on the OOD split. \cref{tbl:bb2_dropout_discrimination} confirms that neither the epistemic or aleatoric uncertainty from MC dropout provides a useful signal for detecting OOD inputs, with AUROC scores around 0.5 similar to the expected performance of a random classifier. 
+\Cref{fig:bb2_dropout_run} shows a flight sequence with the model predictions for a test and an OOD sequence for the MC dropout model. A familiar patter emerges, the model visibly performs worse on the OOD sample, yet the epistemic and aleatoric uncertainties don't seem to capture that decrease in accuracy. \Cref{tbl:bb2_dropout} contains the performance measures. We can see the MAE and NLL increase from 0.27 and 0.22 respectively over the test split, to 1.1 and 7.3 over the OOD split. However, the epistemic and aleatoric uncertainties show no increase with the aleatoric uncertainty being actually lower on the OOD split. \Cref{tbl:bb2_dropout_discrimination} confirms that neither the epistemic or aleatoric uncertainty from MC dropout provides a useful signal for detecting OOD inputs, with AUROC scores around 0.5 similar to the expected performance of a random classifier. 
 
 
 \begin{table*}[h]
@@ -175,11 +180,28 @@ The correlation between the epistemic and aleatoric uncertainty is 0.61, suggest
 
         \toprule
     \end{tabular}
-    \caption{Blackbird(2) error-uncertainty correlation for MC dropout.}
+    \caption[Blackbird(2) error-uncertainty correlation for MC dropout]{Blackbird(2) error-uncertainty correlation for MC dropout. For table description see \cref{sec:crnn_analysis}}
     \label{tbl:bb2_dropout_corr}
 \end{table*}
 
 We compute the correlation between the aleatoric and epistemic uncertainty and obtain a Pearson coefficient of 0.94. This shows that for MC dropout both uncertainties give us mostly the same information. Again this was also found empirically by \cite{kendall2017uncertainties}. 
+
+\begin{figure}[htbp]
+  \centering
+    \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{Experiments/figs/binned/bb2_dropout_epistemic.png}
+        \caption{Binned diagonal plots for the epistemic uncertainty.}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{Experiments/figs/binned/bb2_dropout_aleatoric.png}
+        \caption{Binned diagonal plots for the aleatoric uncertainty.}
+  \end{subfigure}
+    \caption[Blackbird(2) error-uncertainty diagonal plots for MC dropout]{Blackbird(2) error-uncertainty diagonal plots for MC dropout. For plot description see \cref{sec:crnn_analysis}}
+    \label{fig:bb2_dropout_uncertainty_corr}
+\end{figure}
+
+\Cref{fig:bb2_dropout_uncertainty_corr} shows the binned diagonal plots for errors versus uncertainties. For both uncertainties, we see the familiar pattern of the uncertainty correlating with the error in the beginning then \emph{resetting} and correlated separately with the tail. The plots also give visual testimony to the notion that MC dropout's epistemic uncertainty overlaps highly with the aleatoric uncertainty in terms of information about the errors. Comparing the plots here with the ones for C-RNN(\cref{fig:bb2_uncertainty_corr}), we can see that C-RNN's epistemic uncertainty gives information that MC dropout does not capture. Not just for better separating in/out-of-distribution data, but also  a stronger correlation with the error for the OOD inputs. We will distill the key findings for Blackbird(2) in the next section. 
 
 \clearpage
 \subsection{Key findings}

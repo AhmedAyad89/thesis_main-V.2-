@@ -5,7 +5,7 @@
 
 In this thesis we set out to design DL models which can perform virtual sensing tasks for vehicle dynamics. In addition to obtaining high quality predictions, we focused on robust uncertainty  estimation in the presence of OOD inputs. 
 
-We find that the presence of OOD inputs presents a unique challenge to machine learning models in general, since it is a violation of the i.i.d assumption, which standard machine learning methods rely on. We investigate the idea of using a standard Bayesian approach~(\cref{sub:bayesian_framework}) to parameter inference to deal with OOD inputs, as is done in prior work~\citep{kendall2017uncertainties}. We show in \cref{sec:epistemic} that Bayesian methods can fail at properly estimating uncertainty for OOD inputs, even for a simple one-dimensional example. This should not be surprising, since the standard Bayesian procedure also assume that data is sampled i.i.d. 
+We find that OOD inputs presents a unique challenge to machine learning models in general, since it is a violation of the i.i.d assumption, which standard machine learning methods rely on~\citep{goodfellow2016deep}. We investigate the idea of using a standard Bayesian approach~(\cref{sub:bayesian_framework}) to parameter inference to deal with OOD inputs, as is done in prior work~\citep{kendall2017uncertainties}. We show in \cref{sec:epistemic} that Bayesian methods can fail at properly estimating uncertainty for OOD inputs, even for a simple one-dimensional example. This should be expected, since the standard Bayesian procedure also assume that data is sampled i.i.d. 
 
 We formulated an approach which accounts for the fact that data at test time may be drawn from a distribution different from the training distribution in \cref{sec:formalizing}. We showed that in order for a model to make predictions for OOD data, it must be making strong assumptions about the behavior of the function over OOD data, which are normally implicit in a standard approach. We also showed that the central quantity we can learn from data which can help us avoid making over-confident predictions on an OOD input, is the probability of the input under the training distribution. In short, we can only trust the model's predictions in input regions where the training distribution has high probability. 
 
@@ -15,7 +15,9 @@ We conducted in-depth experiments over two different datasets and three differen
 
 \section{Outlook}
 
-Our work and results open numerous interesting venues for further investigation. First, the last finding we mentioned in the previous section, that C-RNN's epistemic uncertainty estimates correlate with model errors just as well as MC dropout \textbf{on the test data alone}. In reality C-RNN ignores parameter uncertainty. The reason we made this choice was practical, accounting for parameter uncertainty requires sampling, even at test time, which makes the model more cumbersome. Moreover, it has been empirically found that when aleatoric uncertainty is modeled it tends to compensate well for epistemic uncertainty~\citep{kendall2017uncertainties}, our experimental findings for MC dropout also support this conclusion. 
+Our work and results open some interesting venues for further investigation. First, as we mentioned in the previous section, C-RNN's epistemic uncertainty estimates correlate with model errors just as well as MC dropout \textbf{on the test data alone}. 
+This is an interesting finding since C-RNN ignores parameter uncertainty, it should be missing some information that MC dropout has, when evaluating on the test data alone. However, the results suggest that this may not be the case.
+The reason we ignored parameter uncertainty was practical, accounting for parameter uncertainty requires sampling, even at test time, which makes the model more cumbersome. Moreover, it has been empirically found that when aleatoric uncertainty is modeled it tends to compensate well for epistemic uncertainty~\citep{kendall2017uncertainties}, our experimental findings for MC dropout also support this conclusion. 
 
 However it is unclear how well C-RNN's epistemic uncertainty should capture parameter uncertainty, or in general correlate with model errors over in-distribution data. Further analysis and experimentation in that direction could be fruitful. 
 
@@ -25,8 +27,10 @@ $$
 $$
 Then via a simplifying assumption, we showed that we can use \pdf[train]{x} as a proxy for epistemic uncertainty without actually computing this posterior predictive distribution. The argument there was that if an input has high probability, then our trained model has the larger weight in the posterior and we can simply ignore the contribution of the $\Psi$ model. 
 
-We used this approximation because we did not want to assume a $\Psi$. We set out to perform the task assuming prior knowledge and OOD data are unavailable.
-It is clear now that properly dealing with the problem requires prior knowledge, thus it would be interesting to investigate how this prior knowledge can be reasonably defined, and evaluate the final predictive distributions that can be obtained. 
+We used this approximation because we did not want to assume a $\Psi$ and other priors(\cref{sec:formalizing}). We set out to perform the task assuming prior knowledge and OOD data are unavailable.
+However properly dealing with the problem requires prior knowledge, thus it would be interesting to investigate how this prior knowledge can be reasonably defined, and evaluate the final predictive distributions that can be obtained within this framework.
+
+Ultimately, we do hope that our arguments and findings move forward the discussion about modelling uncertainty and dealing with OOD inputs 
 
 % Finally exploring this framework even for simply regularizing models.
 

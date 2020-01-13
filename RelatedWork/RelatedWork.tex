@@ -8,7 +8,7 @@ In this section we will explore the methods used in to estimate uncertainty and 
 An example of a method focusing on parameter uncertainty is the Bayesian approach discussed in  \ref{sub:bayesian_framework}. The Bayesian approach is related to a wider range of ensembling approaches. Those methods typically assume i.i.d data and focus on estimating the general epistemic uncertainty. 
 
 
-Similarity based methods are the complement, they operate to detect OOD inputs, which violate the IID assumption.  
+Similarity based methods are the complement, they operate to detect OOD inputs, which violate the i.i.d assumption.  
 
 \section{Parameter uncertainty}
 
@@ -35,7 +35,7 @@ The methods we discuss in this section share a common goal: increase uncertainty
 
 There is a broad range of OOD detection approaches roughly based on similarity with known in-distribution data. \citep{hautamaki2004outlier, NIPS2009_3723, zhang2009new} use a nearest neighbor graph to determine an outlier score for points. 
 \cite{scholkopf2000support} use a one-class support vector classifier to separate the nominal data from everything else. The one-class classification approach is motivated by the idea that the problem being solved is \emph{easier} than density estimation, and gives the information needed to detect OOD inputs.  
-\citet{tax2004support} extend this idea to fit a spherical boundary around the data rather than a hyperplane. \cite{erfani2016high, ruff2018deep} extend the one-class approach by adding deep networks as features extractors for the support-vector classifier. The goal of those approaches is to provide a classifier which can be used to accept in-distribution samples and reject OOD samples. 
+\citet{tax2004support} extend this idea to fit a spherical boundary around the data rather than a hyperplane. \citet{erfani2016high, ruff2018deep} extend the one-class approach by adding deep networks as features extractors for the support-vector classifier. The goal of those approaches is to provide a classifier which can be used to accept in-distribution samples and reject OOD samples. 
 
 Closely related to one-class classification, is estimating the support of the data distribution. In fact, \citet{platt1999estimating} formulate the problem of estimating the support as finding a function which is positive in high density areas and negative everywhere else. Thus connecting density estimation with one-class classification. In the next section, we will look at methods which rely on density estimation. 
 
@@ -50,7 +50,10 @@ Another approach to density estimation is learn a parametric model of the traini
 
 \subsection{Generative modelling}
 
-For complex high-dimensional distributions, modern approaches typically rely on deep learning machinery, particularly density estimation with deep networks. Deep learning approaches to density estimation rely on generative modelling. The two most common approaches are Autoencoding~\cite{kingma2013auto} and Generative Adversarial Training~\cite{goodfellow2014generative}. Autoencoding means training a model to somehow compress the data, then reconstruct it while minimizing the NLL of the reconstruction and the length of the compressed data.
+For complex high-dimensional distributions, modern approaches typically rely on deep learning machinery, particularly density estimation with deep networks. Deep learning approaches to density estimation rely on generative modelling. The two most common approaches are Autoencoding~\cite{kingma2013auto} and Generative Adversarial Training~\cite{goodfellow2014generative}. 
+
+Autoencoding means training a model to somehow compress the data, then reconstruct it while minimizing the NLL of the reconstruction and the length of the compressed data. Our approach is based on autoencoding. 
+
 Generative adversarial training seeks to train a data generator that mimics the data distribution. Variants of both approaches have been used in the context of anomaly/OOD detection. Moreover, ideas from GANs have been ported to autoencoders(AEs), producing models like the Adversarial Autoencoders(AAes)\citep{makhzani2015adversarial}, and VAE/GAN\citep{larsen2015autoencoding}, which allow for flexible priors in the latent and output space respectively. Presumably allowing for better compression of the data.
 
 % Normalizing flows \cite{rezende2015variational} are another recent deep distribution modeling technique, which uses invertible models.

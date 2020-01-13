@@ -43,7 +43,7 @@ As we will show in the results, the two settings represent qualitatively differe
 
 \subsection{Evaluation}
 
-To evaluate the accuracy of our models we use the standard Mean Absolute Error (MAE). Recall from \cref{sec:model} that our model does not just output a point prediction, rather the mean and variance of a Gaussian representing a predictive distribution. The uncertainty of this distribution represents the aleatoric uncertainty (cf.\ \ref{subsec:aleatoric}). 
+To evaluate the accuracy of our models we use the standard Mean Absolute Error (MAE). Recall from \cref{sec:model} that our model does not just output a point prediction, rather the mean and variance of a Gaussian representing a predictive distribution. The uncertainty of this distribution represents the aleatoric uncertainty (\ref{subsec:aleatoric}). 
 To evaluate the quality of the model's predictive distribution which takes into account aleatoric uncertainty we use the Negative Log Likelihood (NLL). 
 
 
@@ -53,7 +53,7 @@ Evaluating the quality of the epistemic uncertainty is more involved. Works~\cit
 
     \item \textbf{AUROC}$\uparrow$ is the Area Under the Receiver Operating Characteristic Curve. The ROC curve represents the relationship between the True Positive Rate (TPR) and the False Positive Rate (FPR). The AUROC has a probabilistic interpretation as the probability that a positive(in-distribution) sample is given a lower uncertainty than a randomly chosen negative example. A perfect classifier has AUROC  1 and a random classifier has an expected AUROC of 0.5 . 
 \end{enumerate}{}
-The Arrows ($\uparrow \downarrow$) denote whether higher/lower is bette respectively. To compute those metrics we use the uncertainty estimates, typically the epistemic, as the score of a binary classifier indicating which class an input belongs to. 
+The Arrows ($\uparrow \downarrow$) denote whether higher/lower is better respectively. To compute those metrics we use the uncertainty estimates, typically the epistemic, as the score of a binary classifier indicating which class an input belongs to. 
 
 One issue with this type of metric is that there is a strong assumption that the model should consistently give higher uncertainty to OOD samples. However in some contexts, there will be OOD inputs where the model performs well, and in-distributions samples where the model performs poorly. Expecting lower uncertainty for the latter seems both unreasonable, and less useful. And in general, the in/out of distribution partitioning is application dependent, and somewhat arbitrary, there is no reason to make the general assumption that our model cannot make predictions over any OOD input. In the end, the hope is that we train models which can generalize to some novel inputs. 
 
@@ -138,9 +138,9 @@ After the detailed results, we will be follow by a summary of the findings and c
 
 The results of the last three sections have shown some patterns. In this section, we will look at all our experiments together, present a compact version of the key results and distill the findings that come out.
 
-Our focus will be on two key issues. First the comparison between C-RNN and MC dropout, particularly in terms of quality and behavior of epistemic uncertainty. Second we will discuss the relationship between epistemic and aleatoric uncertainty for our C-RNN model. 
+Our focus will be on the comparison between C-RNN and MC dropout, particularly in terms of quality and behavior of epistemic uncertainty. 
 
-Before we get to our substantive issues, we start with two general observation about the aleatoric uncertainty. First, in all of our experiments the aleatoric uncertainty performs close to random in terms of separating the in/out-of-distribution inputs. The highest AUROC we have seen using the aleatoric uncertainty is 0.57, which is only slightly better than expected random behavior. This holds for both C-RNN and MC dropout. 
+Before we get to our substantive issue, we start with two general observation about the aleatoric uncertainty. In all of our experiments the aleatoric uncertainty performs close to random in terms of separating the in/out-of-distribution inputs. The highest AUROC we have seen using the aleatoric uncertainty is 0.57, which is only slightly better than expected random behavior. This holds for both C-RNN and MC dropout. The aleatoric uncertainty still provides useful information about the error as we have seen from the results. However we will be focusing on the epistemic uncertainty for our comparison between C-RNN and MC dropout, since this is where the the two models differ significantly and this is the uncertainty we need most when OOD samples are present.    
 
 % This brings us to our second point regarding the aleatoric uncertainty, which is that both models we used in our experiments estimate it in the same. Granted the different training induced by dropout may lead to models with different behavior when predicting the aleatoric uncertainty. However, we have just mentioned that for both models, it fails to separate the test and OOD splits. Moreover, \cref{tbl} shows the Pearson correlation between the aleatoric uncertainty and the MAE for both models mover all datasets side by side. 
 
@@ -198,8 +198,7 @@ We start this comparison by collecting the MAE and NLL for both models over all 
 \end{table*}
 
 
-
-The main difference between C-RNN and MC dropout is the estimation of the epistemic uncertainty. We have argued in \cref{ch:background} that the standard Bayesian framework that MC dropout approximates is unreliable for estimating uncertainty when OOD data can be present at inference time. The results of our experiments have supported this claim. In \cref{tbl:epistemic_comparison} we compare the performance of the epistemic uncertainty for MC dropout and C-RNN in terms of correlation with the errors and discrimination between in/out-of-distribution inputs. 
+The main difference between C-RNN and MC dropout is the estimation of the epistemic uncertainty. We have argued in \cref{ch:background} that the standard Bayesian framework that MC dropout is unreliable for estimating uncertainty when OOD data can be present at inference time. The results of our experiments have supported this claim. In \cref{tbl:epistemic_comparison} we compare the performance of the epistemic uncertainty for MC dropout and C-RNN in terms of correlation with the errors and discrimination between in/out-of-distribution inputs. 
 
 \begin{table*}[htbp]
 \centering
@@ -230,7 +229,16 @@ The main difference between C-RNN and MC dropout is the estimation of the episte
 
 Recall that the AUROC measure here represents the probability that a randomly chosen in-distribution input is assigned lower epistemic uncertainty than a random OOD input. We can see that C-RNN significantly out-preforms MC dropout on both the Revs and Blackbird(2) experiments. When the errors on the OOD data is significantly higher than on test data, this is a desirable property, and this is in fact the case for Revs and Blackbird(2). However we have seen on Blackbird(1) that we can have OOD inputs where the model can generalize well, and ideally we do not want high uncertainty for such inputs. We can see from \cref{tbl:epistemic_comparison} that C-RNN does not give higher uncertainty to OOD data in Blackbird(1), with an AUROC of 0.46. 
 
-In terms of correlation between the errors and the uncertainties, we can see that C-RNN consistently outperforms MC dropout when looking at the combined split. Of course, the combined split represents the type of real world use cases we are interested in. However, the somewhat more impressive finding, is that over the test split alone C-RNN still consistently out-preforms MC dropout, albeit by a smaller margin.  
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=\textwidth]{Experiments/figs/correlation_comparison.png}
+
+    \caption[Comparison of error-uncertainty correlations for C-RNN and MC dropout]{Bar chart for comparing the correlations, between the epistemic uncertainty and the error scores(MAE, Z-score) over the test+OOD split, for C-RNN and MC dropout}
+    \label{fig:epistmic_comparison}
+\end{figure}
+
+
+In terms of correlation between the errors and the uncertainties, we can see, from \cref{tbl:epistemic_comparison} and \cref{fig:epistmic_comparison}, that C-RNN consistently outperforms MC dropout when looking at the combined split. Of course, the combined split represents the type of real world use cases we are interested in. However, the somewhat more impressive finding, is that over the test split alone C-RNN still consistently out-preforms MC dropout, albeit by a smaller margin.  
 
 To conclude, we have shown over three different sets of experiments that C-RNN can give reliable uncertainty estimates in settings where data comes from a mixture on in and out-of-distribution, which is our target use case. Moreover, even in the absence of OOD samples, or when the model can generalize well to OOD samples, C-RNN's epistemic uncertainty remains a valid signal for uncertainty, and performs as well or better than MC dropout's epistemic uncertainty. 
 

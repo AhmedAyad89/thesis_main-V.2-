@@ -12,6 +12,8 @@ However, the uncertainty over parameters does not directly translate into uncert
 
 
 \subsection{Epistemic uncertainty under distribution shift}
+\label{sec:epistemic_shift}
+
 The Bayesian framework, alongside most other practical ML approaches~\citep[chapter~5]{goodfellow2016deep}, assume the training data is independently and identically distributed(i.i.d) from the target distribution, the target distribution being the one we intend to perform inference on. Problems arise when this assumption is broken.
 Let the target distribution be $\pdf{x,y} = \pdf[target]{x} \pdf{y|x}$.
 We consider a scenario where the training data is drawn i.i.d from a training distribution which is different form the target distribution, $\pdf{x,y} = \pdf[train]{x} \pdf{y|x}$. Thus the problem is that the distribution over the inputs is different from training to inference. 
